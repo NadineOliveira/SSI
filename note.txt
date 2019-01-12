@@ -1,0 +1,1 @@
+pesquisar libcurl, especificamente https://curl.haxx.se/libcurl/c/smtp-tls.html
