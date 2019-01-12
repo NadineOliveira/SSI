@@ -54,10 +54,14 @@ int main(int argc , char *argv[]){
 	}
 	puts("Connection accepted");
 	
+	int l;
 	//Receive a message from client
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
 		//Send the message back to client
 		write(client_sock , client_message , strlen(client_message));
+		for(l=0;l<read_size * 10;l++){
+			client_message[l] = ' ';
+		}
 	}
 	
 	if(read_size == 0){
