@@ -1,7 +1,9 @@
 #define FUSE_USE_VERSION 31
 #define WAIT 30
 
-#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
+//#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
+
+#include <fuse.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -88,10 +90,11 @@ static int Myopen(const char *path, struct fuse_file_info *fi, char* codigoClien
 
 int main(){
 	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
-	int res = Myopen("/home/nadine/Documentos/SSI/SSI_TP3/contact_storage", fi, "1234");
+	//int res = Myopen("/home/nadine/Documentos/SSI/SSI_TP3/contact_storage", fi, "1234");
+    int res = Myopen("/home/iamtruth/mestrado/segurança em sistemas informáticos/TP3/contact_storage",fi,"1234");
+
 	while(res==-4){
-		res=Myopen("/home/nadine/Documentos/SSI/SSI_TP3/contact_storage", fi, "1234");
-		printf("RES: %d\n", res);
+        res = Myopen("/home/iamtruth/mestrado/segurança em sistemas informáticos/TP3/contact_storage",fi,"1234");		printf("RES: %d\n", res);
 		if((res==-2))
 			break;
 	}
