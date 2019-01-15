@@ -1,1 +1,6 @@
 pesquisar libcurl, especificamente https://curl.haxx.se/libcurl/c/smtp-tls.html
+
+
+
+Nota: é necessário instalar o libcurl para correr o servidor usando 
+sudo apt-get install libcurl4-openssl-dev
