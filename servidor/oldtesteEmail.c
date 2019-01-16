@@ -1,19 +1,14 @@
-// diretamente retirado de 
-// https://raw.githubusercontent.com/curl/curl/master/docs/examples/smtp-tls.c
-// retirando um comentário
 
 
-//A ideia deste é testar se consegue mandar um email para
-//a minha conta gmail sem problemas
-
-//será alterado do exemplo original até conseguir enviar
-
-
-/* <DESC>
- * SMTP example using TLS
- * </DESC>
+/* This is a simple example showing how to send mail using libcurl's SMTP
+ * capabilities. It builds on the smtp-mail.c example to add authentication
+ * and, more importantly, transport security to protect the authentication
+ * details from being snooped.
+ *
+ * Note that this example requires libcurl 7.20.0 or above.
  */
 
+#define TO      "<99ezequiel90@gmail.com>"
 #include <stdio.h>
 #include <string.h>
 #include <curl/curl.h>
@@ -24,10 +19,48 @@
 #define CC      "<info@example.org>"
 
 
-//função para ler o payload criado 
+static const char *payload_text[] = {
+  "Date: Mon, 29 Nov 2010 21:54:29 +1100\r\n",
+  "To: " TO "\r\n",
+  "From: " FROM " (Example User)\r\n",
+  "Cc: " CC " (Another example User)\r\n",
+  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
+  "rfcpedant.example.org>\r\n",
+  "Subject: SMTP TLS example message\r\n",
+  "\r\n", 
+  "The body of the message starts here.\r\n",
+  "\r\n",
+  "It could be a lot of lines, could be MIME encoded, whatever.\r\n",
+  "Check RFC5322.\r\n",
+  NULL
+};
+
+static const char *payload_text_code_send_example[] = {
+  "Date: Wednesday, 16 Jan 2019 14:00:00 +0000\r\n",
+  "To: " TO "\r\n",
+  "From: " FROM " (Example User)\r\n",
+  "Cc: " CC " (ignore this)\r\n",
+  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
+  "rfcpedant.example.org>\r\n",
+  "Subject: Security Code message\r\n",
+  "\r\n", 
+  "Your security code is 332211.\r\n",
+  "\r\n",
+  "This is just a test, not an actual valid code\r\n",
+  "And this should be going where it should, hopefully\r\n",
+  NULL
+};
+
+struct upload_status {
+  int lines_read;
+};
 
 
-static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb, void *userp, char* payload[]){
+
+
+//exemplo de função que lê o input para o payload
+
+static size_t payload_source(void *ptr, size_t sizePayload, size_t nmemb, void *userp){
   struct upload_status *upload_ctx = (struct upload_status *)userp;
   const char *data;
 
@@ -36,7 +69,8 @@ static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb,
   }
 
   //adicionar data à mensagem
-  data = payload[upload_ctx->lines_read];
+  //data = payload_text[upload_ctx->lines_read];
+  data = payload_text_code_send_example[upload_ctx->lines_read];
   
   if(data) {
     size_t len = strlen(data);
@@ -50,29 +84,7 @@ static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb,
 }
 
 
-//função cujo objetivo é mandar a target(um endereço email) um código
-
-int sendMailToSomeoneWithACode(char* target,char* codeToSend){
-  char destinatario = (char*)malloc(sizeof(char)*size);
-  char codigo = (char*)malloc(sizeof(char)*size);
-  strcpy(destinatario,target);
-  strcpy(codigo,codeToSend);
-
-  const char *payload_to_send[] = {
-    "Date: Wednesday, 16 Jan 2019 14:00:00 +0000\r\n",
-    "To: " destinatario "\r\n",
-    "From: " FROM " (Example User)\r\n",
-    "Cc: " CC " (ignore this)\r\n",
-    "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
-    "rfcpedant.example.org>\r\n",
-    "Subject: Security Code message\r\n",
-    "\r\n", /* empty line to divide headers from body, see RFC5322 */
-    "Your security code is " codigo ".\r\n",
-    "\r\n",
-    "Use this code to acess your file\r\n",
-    "warming: be quick, you have less then 30 secs left to input your code\r\n",
-    NULL
-  };
+int stuff(void){
 
   CURL *curl;
   CURLcode res = CURLE_OK;
@@ -86,7 +98,7 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
     /* Set username and password */
 
     //nota: isto corresponde a um email da google
-    //portanto devo criar um novo e colocar aqui as credenciais associadas
+    //portanto devo criar um novo e colcoar aqui as credenciais associadas
     curl_easy_setopt(curl, CURLOPT_USERNAME, "tp3ssiezenad");
     curl_easy_setopt(curl, CURLOPT_PASSWORD, "palavrapassesegura");
 
@@ -136,7 +148,7 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
     /* Add two recipients, in this particular case they correspond to the
      * To: and Cc: addressees in the header, but they could be any kind of
      * recipient. */
-    recipients = curl_slist_append(recipients, destinatario);
+    recipients = curl_slist_append(recipients, TO);
     recipients = curl_slist_append(recipients, CC);
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 
@@ -148,9 +160,13 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
     //pelo que alterar a mensagem será alterar o payload_source
     //para algo diferente
 
-    curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source_custom);
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
+
+    
+
     
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
+
 
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
@@ -175,15 +191,4 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
   }
 
   return (int)res;
-
 }
-
-
-
-int main(void){
-  sendMailToSomeoneWithACode("<99ezequiel@gmail.com>","111111231");
-  return 0;
-}
-
-
-
