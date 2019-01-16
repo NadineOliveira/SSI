@@ -133,7 +133,13 @@ int main(void)
     /* We're using a callback function to specify the payload (the headers and
      * body of the message). You could just use the CURLOPT_READDATA option to
      * specify a FILE pointer to read from. */
+
+    //nota: aqui é que ele colaca o payload
+    //pelo que alterar a mensagem será alterar o payload_source
+    //para algo diferente
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
+
+    
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
