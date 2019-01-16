@@ -4,11 +4,61 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define size 1000
+
+
+char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
+
+  char* cha = (char*)malloc(sizeof(char)*size);
+  FILE *fptr = fopen(pathToFile,"r");  
+
+  if (fptr  == NULL){
+       printf("Error! opening file");
+
+       // Program exits if the file pointer returns NULL.
+       exit(1);
+   }
+
+  char *p = (char*)malloc(sizeof(char)*size);
+  char* person = (char*)malloc(sizeof(char)*size);
+  char* email = (char*)malloc(sizeof(char)*size);
+
+  char* target = (char*)malloc(sizeof(char)*size);
+  strcpy(target,recordToTest);
+
+    while(fgets(cha, size, fptr) != NULL){
+    //printf("%s", cha);
+    p = strtok(cha, ";");
+    if(p){ 
+      //printf("%s\n",p); 
+      strcpy(person,p);
+    }
+    p = strtok(NULL, ";");
+    if(p){ 
+      //printf("%s\n",p); 
+      //strcpy(email,p);
+    }
+
+    if(strcmp(person, target) == 0){
+      printf("%s matches %s\n",person,target);
+      strcpy(email,p);
+      break;
+    }else{
+      printf("%s doesn't match %s\n",person,target);
+    }
+  }
+
+  fclose(fptr); 
+
+  printf("name:%s\nemail:%s\n",person,email);
+
+  return email;
+}
+
 
 int main(int argc, char const *argv[]){
  
   int c;
-  int size = 1000;
   char* path = (char*)malloc(sizeof(char)*size);
 
   if(argc >= 2 ){
@@ -18,9 +68,12 @@ int main(int argc, char const *argv[]){
   }
 
   printf("%s\n",path);
+  returnContactIfItMatches(path,"ExamplePerson");
+  returnContactIfItMatches(path,"test");
 
 
   //reading from file
+  /*
   char* cha = (char*)malloc(sizeof(char)*size);
   FILE *fptr = fopen(path,"r");
 
@@ -63,7 +116,7 @@ int main(int argc, char const *argv[]){
 
   fscanf(fptr,"%s\n", cha);
   fclose(fptr); 
-
+*/
 
 
 
