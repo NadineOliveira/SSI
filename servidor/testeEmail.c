@@ -123,7 +123,7 @@ int main(void)
 
     //retirado de https://curl.haxx.se/docs/caextract.html
 
-    curl_easy_setopt(curl, CURLOPT_CAINFO, "/servidor/cacert.pem");
+    curl_easy_setopt(curl, CURLOPT_CAINFO, "./cacert.pem");
 
     /* Note that this option isn't strictly required, omitting it will result
      * in libcurl sending the MAIL FROM command with empty sender data. All
