@@ -8,7 +8,6 @@
 int main(int argc, char const *argv[]){
  
   int c;
-  FILE *file;
   int size = 1000;
   char* path = (char*)malloc(sizeof(char)*size);
 
