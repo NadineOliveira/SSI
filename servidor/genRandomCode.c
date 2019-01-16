@@ -13,12 +13,12 @@ int genMultRandom(void){
   srand(time(0)); 
   for(int i = 0; i<5; i++){
     int code = createRandomCode();
-    printf(" %d\n",code); 
+    //printf(" %d\n",code); 
     rgn[i] = code;
   }
   int i = rand()%5;
 
-  printf("code of sequence chosen: %d, in pos %d of above list.\n",rgn[i],i+1);
+  //printf("code of sequence chosen: %d, in pos %d of above list.\n",rgn[i],i+1);
   return rgn[i];
 } 
 

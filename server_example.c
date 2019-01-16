@@ -72,6 +72,19 @@ int main(int argc , char *argv[]){
 		//2.1- descobrir o email do utilziador(getEmailFromFile(path,target) de readFromFile)
 		//2.2- mandar o email(sendMailToSomeoneWithACode(target,codeToSend) de sendEmail.c)
 
+	//estrutura do código que penso que vamos colcoar abaixo
+	//
+	// char* codigoGerado = genMultRandom()
+	// char* databaseForUsers = ...  //colocar caminho para a base de dados com associações utilizador/email
+	// char* userAtual = ... //colocar nome do utilizaador atual aqui
+	// char* email = getEmailFromFile(databaseForUsers,userAtual)
+	// if(strcmp(email,"") == 0){ printf("utilizador não encontrado"); exit(1);}
+	// else{ 
+	//   sendMailToSomeoneWithACode(email,codigoGerado) 
+	//	 .... //começar o temporizador do servidor 
+	// }
+	
+
 	//Receive a message from client
 
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
