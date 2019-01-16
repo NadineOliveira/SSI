@@ -24,6 +24,8 @@ int main(int argc, char const *argv[]){
   char* cha = (char*)malloc(sizeof(char)*size);
   FILE *fptr = fopen(path,"r");
 
+  char *p;
+
   if (fptr  == NULL){
        printf("Error! opening file");
 
@@ -33,6 +35,10 @@ int main(int argc, char const *argv[]){
 
   while(fgets(cha, size, fptr) != NULL){
     printf("%s", cha);
+    p = strtok(cha, ";");
+    if(p){ printf("%s\n",p); }
+    p = strtok(NULL, ";");
+    if(p){ printf("%s\n",p); }
   }
 
   fscanf(fptr,"%s\n", cha);
