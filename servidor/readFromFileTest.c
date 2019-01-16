@@ -50,7 +50,7 @@ char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
 
   fclose(fptr); 
 
-  printf("name:%s\nemail:%s\n",person,email);
+  printf("name:%s ; email:%s\n",person,email);
 
   return email;
 }
