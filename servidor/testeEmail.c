@@ -85,6 +85,9 @@ int main(void)
   curl = curl_easy_init();
   if(curl) {
     /* Set username and password */
+
+    //nota: isto corresponde a um email da google
+    //portanto devo criar um novo e colcoar aqui as credenciais associadas
     curl_easy_setopt(curl, CURLOPT_USERNAME, "user");
     curl_easy_setopt(curl, CURLOPT_PASSWORD, "secret");
 
@@ -92,7 +95,11 @@ int main(void)
      * instead of the normal SMTP port (25). Port 587 is commonly used for
      * secure mail submission (see RFC4403), but you should use whatever
      * matches your server configuration. */
-    curl_easy_setopt(curl, CURLOPT_URL, "smtp://mainserver.example.net:587");
+
+    //nota: estamos a usar o serviço gmail, logo devemos utilizar este servidor
+    //para mais informaçoes ir a 
+    //https://stackoverflow.com/questions/37092597/sending-an-email-with-libcurl-smtp-with-gmail-login-denied
+    curl_easy_setopt(curl, CURLOPT_URL, "smtp.gmail.com:587");
 
     /* In this example, we'll start with a plain text connection, and upgrade
      * to Transport Layer Security (TLS) using the STARTTLS command. Be careful
@@ -112,7 +119,10 @@ int main(void)
      * self-signed) and add it to the set of certificates that are known to
      * libcurl using CURLOPT_CAINFO and/or CURLOPT_CAPATH. See docs/SSLCERTS
      * for more information. */
-    curl_easy_setopt(curl, CURLOPT_CAINFO, "/path/to/certificate.pem");
+
+    //retirado de https://curl.haxx.se/docs/caextract.html
+
+    curl_easy_setopt(curl, CURLOPT_CAINFO, "/servidor/cacert.pem");
 
     /* Note that this option isn't strictly required, omitting it will result
      * in libcurl sending the MAIL FROM command with empty sender data. All
@@ -134,7 +144,7 @@ int main(void)
      * body of the message). You could just use the CURLOPT_READDATA option to
      * specify a FILE pointer to read from. */
 
-    //nota: aqui é que ele colaca o payload
+    //nota: aqui é que ele coloca o payload
     //pelo que alterar a mensagem será alterar o payload_source
     //para algo diferente
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
