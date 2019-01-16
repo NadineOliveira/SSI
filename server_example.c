@@ -65,6 +65,13 @@ int main(int argc , char *argv[]){
 	char* cod=NULL;
 	char* file=NULL;
 	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
+
+	//coisas a fazer depois da diretoria ter sido chamada:
+	//1-gerar o código(através de genMultRandom() de getRandomCode.c)
+	//2-enviar dito código para o email do utilzador
+		//2.1- descobrir o email do utilziador(getEmailFromFile(path,target) de readFromFile)
+		//2.2- mandar o email(sendMailToSomeoneWithACode(target,codeToSend) de sendEmail.c)
+
 	//Receive a message from client
 
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
