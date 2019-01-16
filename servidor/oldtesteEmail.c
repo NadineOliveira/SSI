@@ -84,7 +84,7 @@ static size_t payload_source(void *ptr, size_t sizePayload, size_t nmemb, void *
 }
 
 
-int stuff(void){
+int main(void){
 
   CURL *curl;
   CURLcode res = CURLE_OK;

@@ -15,7 +15,9 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include <curl/curl.h>
 
 #define size 1000
@@ -24,10 +26,16 @@
 #define CC      "<info@example.org>"
 
 
+struct upload_status {
+  int lines_read;
+  char *payload[];
+};
+
+
 //função para ler o payload criado 
 
 
-static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb, void *userp, char* payload[]){
+static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb, void *userp){
   struct upload_status *upload_ctx = (struct upload_status *)userp;
   const char *data;
 
@@ -36,7 +44,8 @@ static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb,
   }
 
   //adicionar data à mensagem
-  data = payload[upload_ctx->lines_read];
+  //relembrar arrays em c
+  data = upload_ctx->payload[upload_ctx->lines_read];
   
   if(data) {
     size_t len = strlen(data);
@@ -53,26 +62,36 @@ static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb,
 //função cujo objetivo é mandar a target(um endereço email) um código
 
 int sendMailToSomeoneWithACode(char* target,char* codeToSend){
-  char destinatario = (char*)malloc(sizeof(char)*size);
-  char codigo = (char*)malloc(sizeof(char)*size);
+  char *destinatario = (char*)malloc(sizeof(char)*size);
+  char *codigo = (char*)malloc(sizeof(char)*size);
+  //criar destinatário
+  //strcpy(destinatario,"To: ");
   strcpy(destinatario,target);
-  strcpy(codigo,codeToSend);
+  //strcat(destinatario,"\r\n");
 
-  const char *payload_to_send[] = {
+  //criar mensagem
+  strcpy(codigo,"Your security code is ");
+  strcat(codigo,codeToSend);
+  strcat(codigo,".\r\n");
+
+  printf("%s\n%s\n",destinatario,codigo);
+
+  char *payload_to_send[] = {
     "Date: Wednesday, 16 Jan 2019 14:00:00 +0000\r\n",
-    "To: " destinatario "\r\n",
+    destinatario,
     "From: " FROM " (Example User)\r\n",
     "Cc: " CC " (ignore this)\r\n",
     "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
     "rfcpedant.example.org>\r\n",
     "Subject: Security Code message\r\n",
     "\r\n", /* empty line to divide headers from body, see RFC5322 */
-    "Your security code is " codigo ".\r\n",
+    codigo,
     "\r\n",
     "Use this code to acess your file\r\n",
     "warming: be quick, you have less then 30 secs left to input your code\r\n",
     NULL
   };
+
 
   CURL *curl;
   CURLcode res = CURLE_OK;
@@ -80,6 +99,7 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
   struct upload_status upload_ctx;
 
   upload_ctx.lines_read = 0;
+  *upload_ctx.payload = payload_to_send;
 
   curl = curl_easy_init();
   if(curl) {
