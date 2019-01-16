@@ -47,6 +47,22 @@ static const char *payload_text[] = {
   NULL
 };
 
+static const char *payload_text_code_send_example[] = {
+  "Date: Wednesday, 16 Jan 2019 14:00:00 +0000\r\n",
+  "To: " TO "\r\n",
+  "From: " FROM " (Example User)\r\n",
+  "Cc: " CC " (ignore this)\r\n",
+  "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
+  "rfcpedant.example.org>\r\n",
+  "Subject: Security Code message\r\n",
+  "\r\n", /* empty line to divide headers from body, see RFC5322 */
+  "Your security code is 332211.\r\n",
+  "\r\n",
+  "This is just a test, not an actual valid code\r\n",
+  "And this should be going where it should, hopefully\r\n",
+  NULL
+};
+
 struct upload_status {
   int lines_read;
 };
@@ -60,7 +76,13 @@ static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
     return 0;
   }
 
-  data = payload_text[upload_ctx->lines_read];
+  //adicionar data à mensagem
+
+  //data = payload_text[upload_ctx->lines_read];
+
+  data = payload_text_code_send_example[upload_ctx->lines_read];
+  
+
 
   if(data) {
     size_t len = strlen(data);
@@ -148,7 +170,10 @@ int main(void)
     //nota: aqui é que ele coloca o payload
     //pelo que alterar a mensagem será alterar o payload_source
     //para algo diferente
+
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
+
+    
 
     
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
