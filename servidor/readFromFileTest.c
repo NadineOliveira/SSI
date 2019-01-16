@@ -24,7 +24,10 @@ int main(int argc, char const *argv[]){
   char* cha = (char*)malloc(sizeof(char)*size);
   FILE *fptr = fopen(path,"r");
 
-  char *p;
+  char *p = (char*)malloc(sizeof(char)*size);
+  char* person = (char*)malloc(sizeof(char)*size);
+  char* email = (char*)malloc(sizeof(char)*size);
+
 
   if (fptr  == NULL){
        printf("Error! opening file");
@@ -36,10 +39,20 @@ int main(int argc, char const *argv[]){
   while(fgets(cha, size, fptr) != NULL){
     printf("%s", cha);
     p = strtok(cha, ";");
-    if(p){ printf("%s\n",p); }
+    if(p){ 
+      //printf("%s\n",p); 
+      strcpy(person,p);
+    }
     p = strtok(NULL, ";");
-    if(p){ printf("%s\n",p); }
+    if(p){ 
+      //printf("%s\n",p); 
+      strcpy(email,p);
+    }
+
+    printf("name:%s\nemail:%s\n",person,email);
   }
+
+  printf("name:%s\nemail:%s\n",person,email);
 
   fscanf(fptr,"%s\n", cha);
   fclose(fptr); 
