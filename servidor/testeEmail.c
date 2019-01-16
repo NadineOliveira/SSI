@@ -88,8 +88,8 @@ int main(void)
 
     //nota: isto corresponde a um email da google
     //portanto devo criar um novo e colcoar aqui as credenciais associadas
-    curl_easy_setopt(curl, CURLOPT_USERNAME, "user");
-    curl_easy_setopt(curl, CURLOPT_PASSWORD, "secret");
+    curl_easy_setopt(curl, CURLOPT_USERNAME, "tp3ssiezenad");
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, "palavrapassesegura");
 
     /* This is the URL for your mailserver. Note the use of port 587 here,
      * instead of the normal SMTP port (25). Port 587 is commonly used for
@@ -99,6 +99,7 @@ int main(void)
     //nota: estamos a usar o serviço gmail, logo devemos utilizar este servidor
     //para mais informaçoes ir a 
     //https://stackoverflow.com/questions/37092597/sending-an-email-with-libcurl-smtp-with-gmail-login-denied
+    //e https://support.google.com/a/answer/176600?hl=en
     curl_easy_setopt(curl, CURLOPT_URL, "smtp.gmail.com:587");
 
     /* In this example, we'll start with a plain text connection, and upgrade
@@ -151,6 +152,8 @@ int main(void)
 
     
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
+
+
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
     /* Since the traffic will be encrypted, it is very useful to turn on debug
