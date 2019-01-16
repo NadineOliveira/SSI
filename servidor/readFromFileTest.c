@@ -52,6 +52,7 @@ char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
 
   printf("name:%s ; email:%s\n",person,email);
 
+
   return email;
 }
 
