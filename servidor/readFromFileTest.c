@@ -28,6 +28,8 @@ int main(int argc, char const *argv[]){
   char* person = (char*)malloc(sizeof(char)*size);
   char* email = (char*)malloc(sizeof(char)*size);
 
+  char* target = (char*)malloc(sizeof(char)*size);
+  strcpy(target,"ExamplePerson");
 
   if (fptr  == NULL){
        printf("Error! opening file");
@@ -50,6 +52,11 @@ int main(int argc, char const *argv[]){
     }
 
     printf("name:%s\nemail:%s\n",person,email);
+    if(strcmp(person, target) == 0){
+      printf("name %s matches %s\n",person,target);
+    }else{
+      printf("name %s doesn't match %s\n",person,target);
+    }
   }
 
   printf("name:%s\nemail:%s\n",person,email);
