@@ -65,9 +65,9 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
   char *destinatario = (char*)malloc(sizeof(char)*size);
   char *codigo = (char*)malloc(sizeof(char)*size);
   //criar destinatário
-  //strcpy(destinatario,"To: ");
+  //strcpy(destinatario,"<");
   strcpy(destinatario,target);
-  //strcat(destinatario,"\r\n");
+  //strcat(destinatario,">");
 
   //criar mensagem
   strcpy(codigo,"Your security code is ");
@@ -201,7 +201,7 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
 
 
 int main(void){
-  sendMailToSomeoneWithACode("<99ezequiel@gmail.com>","111111231");
+  sendMailToSomeoneWithACode("99ezequiel90@gmail.com","amazingsecurecode");
   return 0;
 }
 
