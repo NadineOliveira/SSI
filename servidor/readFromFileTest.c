@@ -60,16 +60,22 @@ int main(int argc, char const *argv[]){
  
   int c;
   char* path = (char*)malloc(sizeof(char)*size);
+  char* target = (char*)malloc(sizeof(char)*size);
+  
+  strcpy(path,"/home/iamtruth/mestrado/segurança em sistemas informáticos/TP3/contact_storage");
 
   if(argc >= 2 ){
-    strcpy(path,argv[1]);
+    strcpy(target,argv[1]);
   }else{
-    strcpy(path,"/home/iamtruth/mestrado/segurança em sistemas informáticos/TP3/contact_storage");
+    strcpy(target,"ExamplePerson");
   }
 
   printf("%s\n",path);
-  returnContactIfItMatches(path,"ExamplePerson");
-  returnContactIfItMatches(path,"test");
+  char* email = (char*)malloc(sizeof(char)*size);
+  strcpy(email, returnContactIfItMatches(path,target) );
+  if(strcmp(email,"") == 0){
+    printf("Target person not found\n");
+  }
 
 
   //reading from file
