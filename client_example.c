@@ -10,7 +10,9 @@
 */
 #define FUSE_USE_VERSION 31
 
-#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
+//#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
+#include<fuse.h>
+
 #include<stdio.h>	//printf
 #include<string.h>	//strlen
 #include<sys/socket.h>	//socket

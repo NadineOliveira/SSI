@@ -14,7 +14,7 @@
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
 #include"sCalls.c"
-
+#include"servidor/readFromFileTest.c"
 
 
 int main(int argc , char *argv[]){

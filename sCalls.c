@@ -1,7 +1,8 @@
 #define FUSE_USE_VERSION 31
 #define WAIT 30
 
-#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
+//#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
+#include <fuse.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
