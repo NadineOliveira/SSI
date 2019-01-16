@@ -61,12 +61,16 @@ int main(int argc, char const *argv[]){
        exit(1);
    }
 
+  while(fgets(cha, size, fptr) != NULL){
+    printf("%s", cha);
+  }
+
   fscanf(fptr,"%s\n", cha);
+  fclose(fptr); 
 
   //scanf("%*c");
 
-  printf("Data from the file:\n%s", cha);
-  fclose(fptr); 
+  //printf("Data from the file:\n%s\n", cha);
   
   /*
   file = fopen(path, "r");
