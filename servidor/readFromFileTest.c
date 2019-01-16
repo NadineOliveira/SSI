@@ -19,6 +19,29 @@ int main(int argc, char const *argv[]){
 
   printf("%s\n",path);
 
+
+  //reading from file
+  char* cha = (char*)malloc(sizeof(char)*size);
+  FILE *fptr = fopen(path,"r");
+
+  if (fptr  == NULL){
+       printf("Error! opening file");
+
+       // Program exits if the file pointer returns NULL.
+       exit(1);
+   }
+
+  while(fgets(cha, size, fptr) != NULL){
+    printf("%s", cha);
+  }
+
+  fscanf(fptr,"%s\n", cha);
+  fclose(fptr); 
+
+
+
+
+
   //writing to file
 
   /*
@@ -49,39 +72,6 @@ int main(int argc, char const *argv[]){
 
   */
 
-  //reading from file
-  char* cha = (char*)malloc(sizeof(char)*size);
-  FILE *fptr = fopen(path,"r");
-
-  if (fptr  == NULL){
-       printf("Error! opening file");
-
-       // Program exits if the file pointer returns NULL.
-       exit(1);
-   }
-
-  while(fgets(cha, size, fptr) != NULL){
-    printf("%s", cha);
-  }
-
-  fscanf(fptr,"%s\n", cha);
-  fclose(fptr); 
-
-  //scanf("%*c");
-
-  //printf("Data from the file:\n%s\n", cha);
-  
-  /*
-  file = fopen(path, "r");
-  if (file) {
-      while ((c = getc(file)) != EOF){
-          printf("%c\n",c);
-          putchar(c);
-      }
-
-      fclose(file);
-  }
-  */
   return 0;
 
 }
