@@ -23,7 +23,7 @@ static int Myopen(const char *path, struct fuse_file_info *fi, char* codigoClien
 {
 	int res;
 	
-    char codigo[5] = {0} ; // in case of single character input
+    char codigo[10] = {0} ; // in case of single character input
     fd_set input_set;
     struct timeval timeout;
     int ready_for_reading = 0;
@@ -58,7 +58,8 @@ static int Myopen(const char *path, struct fuse_file_info *fi, char* codigoClien
     } 
 
     if (ready_for_reading) {
-        read_bytes = read(0, codigo, 4);
+        read_bytes = read(0, codigo, 10);
+
         if(codigo[read_bytes-1]=='\n'){
 	        --read_bytes;
 	        codigo[read_bytes]='\0';

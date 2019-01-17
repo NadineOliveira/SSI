@@ -20,7 +20,7 @@
 
 #include <curl/curl.h>
 
-#define size 1000
+#define SIZE 1000
 
 #define FROM    "<sender@example.org>"
 #define CC      "<info@example.org>"
@@ -62,8 +62,8 @@ static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb,
 //função cujo objetivo é mandar a target(um endereço email) um código
 
 int sendMailToSomeoneWithACode(char* target,char* codeToSend){
-  char *destinatario = (char*)malloc(sizeof(char)*size);
-  char *codigo = (char*)malloc(sizeof(char)*size);
+  char *destinatario = (char*)malloc(sizeof(char)*SIZE);
+  char *codigo = (char*)malloc(sizeof(char)*SIZE);
   //criar destinatário
   //strcpy(destinatario,"<");
   strcpy(destinatario,target);
@@ -108,7 +108,7 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
     //nota: isto corresponde a um email da google
     //portanto devo criar um novo e colocar aqui as credenciais associadas
     curl_easy_setopt(curl, CURLOPT_USERNAME, "tp3ssiezenad");
-    curl_easy_setopt(curl, CURLOPT_PASSWORD, "palavrapassesegura");
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, "palavrapasse2");
 
     /* This is the URL for your mailserver. Note the use of port 587 here,
      * instead of the normal SMTP port (25). Port 587 is commonly used for
@@ -198,8 +198,11 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
 
 }
 
+/*
 
 int main(void){
   sendMailToSomeoneWithACode("99ezequiel90@gmail.com","amazingsecurecode");
   return 0;
 }
+
+*/
