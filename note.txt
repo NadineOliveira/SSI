@@ -12,7 +12,7 @@ gcc input -o output -lcurl
 
 
 
-nota2: agora o servidor também precisa de -D_FILE_OFFSET_BITS=64
+nota2: agora o servidor também precisa de -D_FILE_OFFSET_BITS=64 e -pthread(para as threads funcionarem)
 portanto para compilar tem de se chamar:
 
 gcc server_example.c -o server_example -D_FILE_OFFSET_BITS=64 -lcurl -pthread
