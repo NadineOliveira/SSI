@@ -61,6 +61,11 @@
 #include <sys/xattr.h>
 #endif
 
+
+//includes para testar algumas coisas
+#include"genRandomCode.c"
+#include"readFromFile.c"
+
 static void *xmp_init(struct fuse_conn_info *conn,
 		      struct fuse_config *cfg)
 {
