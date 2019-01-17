@@ -16,10 +16,12 @@ int genMultRandom(void){
     //printf(" %d\n",code); 
     rgn[i] = code;
   }
-  int i = rand()%5;
+  int j = rand()%5;
 
-  //printf("code of sequence chosen: %d, in pos %d of above list.\n",rgn[i],i+1);
-  return rgn[i];
+  printf("generated code: %d\n",rgn[j]);
+
+  //printf("code of sequence chosen: %d, in pos %d of above list.\n",rgn[j],j+1);
+  return rgn[j];
 } 
 
 /*

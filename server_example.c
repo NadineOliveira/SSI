@@ -67,6 +67,10 @@ int main(int argc , char *argv[]){
 	char* file=NULL;
 	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
 
+	//gerar código aleatório
+	char* codigoGerado = NULL;
+	codigoGerado = genMultRandom();
+
 
 	//coisas a fazer depois da diretoria ter sido chamada:
 	//1-gerar o código(através de genMultRandom() de getRandomCode.c)
@@ -90,6 +94,7 @@ int main(int argc , char *argv[]){
 	//Receive a message from client
 
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
+
 		//Send the message back to client_messaget
 		printf("%s\n", client_message);
 		dir = "Introduza o codigo enviado: ";
@@ -98,10 +103,15 @@ int main(int argc , char *argv[]){
 			cod = strdup(client_message);
 		else
 			file = strdup(client_message);
+
 		printf("enviou cliente\n");
 		write(client_sock , dir , strlen(dir));
 		
-		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
+		//if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
+		
+		//o abaixo é o suposto colocar-mos quando estiver a funcionar
+		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,codigoGerado); }
+
 		
 		write(client_sock , client_message , strlen(client_message));
 		
