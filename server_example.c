@@ -67,9 +67,6 @@ int main(int argc , char *argv[]){
 	char* file=NULL;
 	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
 
-	//gerar código aleatório
-	char* codigoGerado = NULL;
-	codigoGerado = genMultRandom();
 
 
 	//coisas a fazer depois da diretoria ter sido chamada:
@@ -78,18 +75,43 @@ int main(int argc , char *argv[]){
 		//2.1- descobrir o email do utilziador(getEmailFromFile(path,target) de readFromFile)
 		//2.2- mandar o email(sendMailToSomeoneWithACode(target,codeToSend) de sendEmail.c)
 
-	//estrutura do código que penso que vamos colcoar abaixo
-	//
-	// char* codigoGerado = genMultRandom()
-	// char* databaseForUsers = ...  //colocar caminho para a base de dados com associações utilizador/email
-	// char* userAtual = ... //colocar nome do utilizaador atual aqui
-	// char* email = getEmailFromFile(databaseForUsers,userAtual)
-	// if(strcmp(email,"") == 0){ printf("utilizador não encontrado"); exit(1);}
-	// else{ 
-	//   sendMailToSomeoneWithACode(email,codigoGerado) 
-	//	 .... //começar o temporizador do servidor 
-	// }
 	
+	//gerar código aleatório
+	char* codigoGerado = genMultRandom();
+
+	//caminho para a base de dados
+	//nota: no produto final devemos decidir onde vai estar
+	//mas por agora estará em contact_storage
+	char* databaseForUsersEmails = "./contact_storage";
+
+	//utilizador atual
+	//nota: provavelmente vamos requirir que ele coloque o seu nome
+	//ao conectar-se ao servidor, depois vemos se tem email associado
+	//e caso não o tenha desconectar
+	//por enquanto fica apenas a variável que depois temos de preencher
+	char* userAtual;
+
+	//obter o email do utilizador
+	//vai ficar comentado até lermos o nome do utilizador
+	//char* email = getEmailFromFile(databaseForUsersEmails,userAtual);
+
+	//verificar se o email é vazio ou não
+	//se for concluimos que o utilizador não está na base de dados
+	//logo, desconectamos
+	//mais tarde devemos usar sockets para evitar atirar o servidor abaixo
+	//quando fazemos isto
+	//if(strcmp(email,"") == 0){ printf("utilizador não encontrado"); exit(1);}
+
+	//se tivermos o email, mandamos o código para ele e começamos a contar o tempo
+	//provavelmente vamos ter de reformular o sCalls.c para isto funcionar
+	//else{ 	
+	//	sendMailToSomeoneWithACode(email,codigoGerado) 	
+	//	.... //começar o temporizador do servidor 	
+	//  .... //pedir código do utilizador e esperar por resposta
+	//  .... //se ainda for antes dos 30 seguntos e o código for válido, abrir o ficheiro
+	//  .... //caso contrário, desconectar utilizador
+	//}
+
 
 	//Receive a message from client
 
@@ -107,10 +129,10 @@ int main(int argc , char *argv[]){
 		printf("enviou cliente\n");
 		write(client_sock , dir , strlen(dir));
 		
-		//if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
+		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
 		
 		//o abaixo é o suposto colocar-mos quando estiver a funcionar
-		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,codigoGerado); }
+		//if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,codigoGerado); }
 
 		
 		write(client_sock , client_message , strlen(client_message));
