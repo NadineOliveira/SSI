@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define size 1000
+#define SIZE 1000
 
 
 char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
 
-  char* cha = (char*)malloc(sizeof(char)*size);
+  char* cha = (char*)malloc(sizeof(char)*SIZE);
   FILE *fptr = fopen(pathToFile,"r");  
 
   if (fptr  == NULL){
@@ -18,14 +18,14 @@ char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
        exit(1);
    }
 
-  char *p = (char*)malloc(sizeof(char)*size);
-  char* person = (char*)malloc(sizeof(char)*size);
-  char* email = (char*)malloc(sizeof(char)*size);
+  char *p = (char*)malloc(sizeof(char)*SIZE);
+  char* person = (char*)malloc(sizeof(char)*SIZE);
+  char* email = (char*)malloc(sizeof(char)*SIZE);
 
-  char* target = (char*)malloc(sizeof(char)*size);
+  char* target = (char*)malloc(sizeof(char)*SIZE);
   strcpy(target,recordToTest);
 
-  while(fgets(cha, size, fptr) != NULL){
+  while(fgets(cha, SIZE, fptr) != NULL){
     p = strtok(cha, ";");
     if(p){ strcpy(person,p);}
     p = strtok(NULL, ";");
@@ -48,17 +48,17 @@ char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
 //atenção: retorna vazio se não tiver email associado a target
 
 char* getEmailFromFile(char* path,char* target){
-  char* email = (char*)malloc(sizeof(char)*size);
+  char* email = (char*)malloc(sizeof(char)*SIZE);
   strcpy(email, returnContactIfItMatches(path,target) );
   return(email);
 }
 
-
+/*
 int main(int argc, char const *argv[]){
  
   int c;
-  char* path = (char*)malloc(sizeof(char)*size);
-  char* target = (char*)malloc(sizeof(char)*size);
+  char* path = (char*)malloc(sizeof(char)*SIZE);
+  char* target = (char*)malloc(sizeof(char)*SIZE);
 
   //nota: assume que os utilizadores estão neste caminho
   
@@ -82,3 +82,4 @@ int main(int argc, char const *argv[]){
 
 }
 
+*/

@@ -7,3 +7,20 @@ sudo apt-get install libcurl4-openssl-dev
 
 para compilar o programa curl deve-se usar 
 gcc input -o output -lcurl
+
+
+
+
+
+nota2: agora o servidor também precisa de -D_FILE_OFFSET_BITS=64
+portanto para compilar tem de se chamar:
+
+gcc server_example.c -o server_example -D_FILE_OFFSET_BITS=64 -lcurl
+
+
+
+
+
+do mesmo modo, tem de se usar -D_FILE_OFFSET_BITS=64 para o cliente:
+
+gcc client_example.c -o client_example -D_FILE_OFFSET_BITS=64

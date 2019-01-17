@@ -19,6 +19,7 @@
 #include"servidor/sendEmail.c"
 
 
+
 int main(int argc , char *argv[]){
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;
@@ -66,6 +67,7 @@ int main(int argc , char *argv[]){
 	char* file=NULL;
 	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
 
+
 	//coisas a fazer depois da diretoria ter sido chamada:
 	//1-gerar o código(através de genMultRandom() de getRandomCode.c)
 	//2-enviar dito código para o email do utilzador
@@ -98,9 +100,11 @@ int main(int argc , char *argv[]){
 			file = strdup(client_message);
 		printf("enviou cliente\n");
 		write(client_sock , dir , strlen(dir));
-		/*if((cod!=NULL)&&(file!=NULL))
-			Myopen(client_message,fi,cod);*/
-		//write(client_sock , client_message , strlen(client_message));
+		
+		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
+		
+		write(client_sock , client_message , strlen(client_message));
+		
 		for(l=0;l<read_size * 10;l++){
 			client_message[l] = ' ';
 		}

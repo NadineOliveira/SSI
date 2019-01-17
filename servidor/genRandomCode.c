@@ -22,8 +22,12 @@ int genMultRandom(void){
   return rgn[i];
 } 
 
+/*
+
 int main(void){
   genMultRandom(); 
 
   return 0; 
 }
+
+*/

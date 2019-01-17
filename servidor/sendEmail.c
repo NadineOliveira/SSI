@@ -199,11 +199,11 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
 }
 
 
-
+/*
 int main(void){
   sendMailToSomeoneWithACode("99ezequiel90@gmail.com","amazingsecurecode");
   return 0;
 }
-
+*/
 
 

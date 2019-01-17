@@ -19,7 +19,6 @@
 
 
 
-
 static int Myopen(const char *path, struct fuse_file_info *fi, char* codigoCliente)
 {
 	int res;
@@ -67,12 +66,14 @@ static int Myopen(const char *path, struct fuse_file_info *fi, char* codigoClien
         if(read_bytes!=0){
             printf("Read, %d bytes from input : %s \n", read_bytes, codigo);
             if(strcmp(codigo,codigoCliente)==0){
+
 				res = open(path, fi->flags);
 				if (res == -1)
 					return -errno;
 
 				fi->fh = res;
 				return 0;
+
 			}
 			else{
 				printf("Codigo errado\n");
