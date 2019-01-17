@@ -1,0 +1,3 @@
+Está aqui um ficheiro de teste para o libfuse
+
+importante: ler as primeiras linhas para se poder utilizae

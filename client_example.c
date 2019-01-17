@@ -61,6 +61,8 @@ int main(int argc , char *argv[]){
     /* Invitation for the user to write something */
 
     printf("Enter code: (in %d seconds)\n", WAIT);
+
+
 	
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -69,6 +71,8 @@ int main(int argc , char *argv[]){
 	}
 	puts("Socket created");
 	
+
+
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8888 );
@@ -79,7 +83,12 @@ int main(int argc , char *argv[]){
 		return 1;
 	}
 	
+
+
 	puts("Connected\n");
+
+
+	
 	int read_size;
 	//keep communicating with server
 	printf("Introduza a diretoria do ficheiro: \n");
@@ -88,7 +97,7 @@ int main(int argc , char *argv[]){
 
 	    //while(1){
 	    	/* Listening for input stream for any activity */
-			printf("Introduza o codigo enviado: \n");
+				printf("Introduza o codigo enviado: \n");
 	    	ready_for_reading = select(1, &input_set, NULL, NULL, &timeout);
 			
 			if (ready_for_reading == -1) {
