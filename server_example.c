@@ -10,18 +10,24 @@
 
 #include<stdio.h>
 #include<string.h>	//strlen
+#include<stdlib.h>	//strlen
 #include<sys/socket.h>
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
+#include<pthread.h> //for threading , link with lpthread
 #include"sCalls.c"
 #include"servidor/readFromFile.c"
 #include"servidor/genRandomCode.c"
 #include"servidor/sendEmail.c"
 
 
+//the thread function
+void *connection_handler(void *);
+
+
 
 int main(int argc , char *argv[]){
-	int socket_desc , client_sock , c , read_size;
+	int socket_desc , client_sock , c , read_size, *new_sock;
 	struct sockaddr_in server , client;
 	char client_message[2000];
 	
@@ -53,12 +59,30 @@ int main(int argc , char *argv[]){
 	c = sizeof(struct sockaddr_in);
 	
 	//accept connection from an incoming client
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-	if (client_sock < 0){
+	puts("Waiting for incoming connections...");
+	c = sizeof(struct sockaddr_in);
+	while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
+		puts("Connection acceptedc");
+		
+		pthread_t sniffer_thread;
+		new_sock = malloc(1);
+		*new_sock = client_sock;
+		
+		if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0){
+			perror("could not create thread");
+			return 1;
+		}
+		
+		//Now join the thread , so that we dont terminate before the thread
+		//pthread_join( sniffer_thread , NULL);
+		puts("Handler assigned");
+	}
+	
+	if (client_sock < 0)
+	{
 		perror("accept failed");
 		return 1;
 	}
-	puts("Connection accepted");
 
 	char* dir = "Introduza a diretoria do ficheiro: ";
 	write(client_sock , dir , strlen(dir));
@@ -150,6 +174,42 @@ int main(int argc , char *argv[]){
 	}else if(read_size == -1){
 		perror("recv failed");
 	}
+	
+	return 0;
+}
+
+
+/*
+ * This will handle connection for each client
+ * */
+void *connection_handler(void *socket_desc){
+	//Get the socket descriptor
+	int sock = *(int*)socket_desc;
+	int read_size;
+	char *message , client_message[2000];
+	
+	//Send some messages to the client
+	message = "Greetings! I am your connection handler\n";
+	write(sock , message , strlen(message));
+	
+	message = "Now type something and i shall repeat what you type \n";
+	write(sock , message , strlen(message));
+	
+	//Receive a message from client
+	while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 ){
+		//Send the message back to client
+		write(sock , client_message , strlen(client_message));
+	}
+	
+	if(read_size == 0){
+		puts("Client disconnected");
+		fflush(stdout);
+	}else if(read_size == -1){
+		perror("recv failed");
+	}
+		
+	//Free the socket pointer
+	free(socket_desc);
 	
 	return 0;
 }
