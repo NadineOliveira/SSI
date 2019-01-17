@@ -65,6 +65,11 @@
 //includes para testar algumas coisas
 #include"genRandomCode.c"
 #include"readFromFile.c"
+#include<unistd.h>
+
+//isto é um crime contra o que nos ensinaram, mas enfim
+char absolutePathToDb[FILENAME_MAX];
+
 
 static void *xmp_init(struct fuse_conn_info *conn,
 		      struct fuse_config *cfg)
@@ -364,6 +369,22 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	printf("generated code:%d\n",randomCodeGenerated);
 
+	int size = 1000;
+
+	char* pathToDB = (char*)malloc(sizeof(char)*size);
+	char* target = (char*)malloc(sizeof(char)*size);
+
+	strcpy(pathToDB,absolutePathToDb);
+	strcat(pathToDB,"/contact_storage");
+
+	printf("path to db:%s\n",pathToDB);
+	
+	strcpy(target,"test");
+
+	char* email = getEmailFromFile(pathToDB,target);
+
+	printf("For user %s we've discovered email %s\n",target,email);
+
 	res = open(path, fi->flags);
 	if (res == -1)
 		return -errno;
@@ -636,6 +657,10 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
+
+	getcwd(absolutePathToDb,FILENAME_MAX);
+	printf("Current directory:%s\n",absolutePathToDb);
+	
 	umask(0);
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
