@@ -118,22 +118,7 @@ int main(int argc , char *argv[]){
 		//pthread_join( sniffer_thread , NULL);
 		puts("Handler assigned");
 
-		//limpar o que estava antes em client_message
-		//serve mais para garantir que as mensagens estão bem depois
-		memset(client_message, 0, sizeof client_message);
 
-		while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
-			printf("Nova mensagem\n");
-			//Send the message back to client_messaget
-			printf("%s;;;;%d\n", client_message,read_size);
-
-			if(strcmp(client_message,"fuse") == 0){
-				printf("received a fuse message\n");
-			}
-
-			//limpar a mensagem depois de fazermos com ela o que queremos
-			memset(client_message, 0, sizeof client_message);
-		}
 	}
 	
 	if (client_sock < 0)
@@ -141,6 +126,8 @@ int main(int argc , char *argv[]){
 		perror("accept failed");
 		return 1;
 	}
+
+	
 
 
 
@@ -245,21 +232,29 @@ int main(int argc , char *argv[]){
  * */
 void *connection_handler(void *socket_desc){
 	//Get the socket descriptor
-	int sock = *(int*)socket_desc;
+	int client_sock = *(int*)socket_desc;
 	int read_size;
 	char *message , client_message[2000];
 	
 	//Send some messages to the client
-	message = "Greetings! I am your connection handler\n";
-	write(sock , message , strlen(message));
-	
-	message = "Now type something and i shall repeat what you type \n";
-	write(sock , message , strlen(message));
+	//limpar o que estava antes em client_message
+	//serve mais para garantir que as mensagens estão bem depois
+	memset(client_message, 0, sizeof client_message);
+	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
+		printf("Nova mensagem\n");
+		//Send the message back to client_messaget
+		printf("%s;;;;%d\n", client_message,read_size);
+		if(strcmp(client_message,"fuse") == 0){
+			printf("received a fuse message\n");
+		}
+		//limpar a mensagem depois de fazermos com ela o que queremos
+		memset(client_message, 0, sizeof client_message);
+	}
 	
 	//Receive a message from client
-	while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 ){
+	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
 		//Send the message back to client
-		write(sock , client_message , strlen(client_message));
+		write(client_sock , client_message , strlen(client_message));
 	}
 	
 	if(read_size == 0){
