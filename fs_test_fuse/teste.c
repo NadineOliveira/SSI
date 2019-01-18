@@ -372,6 +372,7 @@ static int xmp_create(const char *path, mode_t mode,
 static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	printf("open\n");
+	write(sock , "open on fuse system\n" , strlen("open on fuse system\n"));
 
 	int res;
 	//gerar código aleatório
