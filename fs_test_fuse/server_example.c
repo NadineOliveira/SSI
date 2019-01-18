@@ -35,10 +35,10 @@ struct cliente *clientes;
 
 
 //para especificar quem o fuse e quem o cliente
-int sockFuse = 0;
-int sockClient = 0;
-int totalClientesBD = 0;
-int clienteAtual = 0;
+int sockFuse = -1;
+int sockClient = -1;
+int totalClientesBD = -1;
+int clienteAtual = -1;
 
 
 void carregaDB(){
@@ -116,8 +116,8 @@ int main(int argc , char *argv[]){
 	while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
 
 
-		//se ainda tivermos possibilidade de conectarmo-nos xom alguém
-		if( (sockClient==0) || (sockFuse==0) ){
+		//se ainda tivermos possibilidade de conectarmo-nos com alguém
+		if( (sockClient ==-10) || (sockFuse == -1) ){
 			puts("Connection accepted");
 			
 			pthread_t sniffer_thread;
@@ -132,6 +132,13 @@ int main(int argc , char *argv[]){
 			//Now join the thread , so that we dont terminate before the thread
 			//pthread_join( sniffer_thread , NULL);
 			puts("Handler assigned");
+		}else{
+			printf("alguém tentou-se juntar quando já tinhamos tanto cliente como fuse presente");
+			write(
+				client_sock,
+				"fuse and client already present, so you won't be connected",
+				strlen("fuse and client already present, so you won't be connected")
+			);
 		}
 
 	}
@@ -141,16 +148,6 @@ int main(int argc , char *argv[]){
 		perror("accept failed");
 		return 1;
 	}
-
-	//nota: o utilizador atual deve ser inicializado no connection handler abaixo e não aqui
-	//isto só fica aqui temporáriamente
-
-	//utilizador atual
-	char* userAtual;
-
-	//email do utilizador
-	char* email;
-
 
 
 
@@ -203,16 +200,18 @@ void *connection_handler(void *socket_desc){
 	//serve mais para garantir que as mensagens estão bem depois
 	memset(client_message, 0, sizeof client_message);
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
+
+		//menasgem de debug do servidor
 		printf("Nova mensagem\n");
 		//Send the message back to client_messaget
 		printf("%s;;;;%d\n", client_message,read_size);
 
+
 		//identificar o tipo de cliente
 		//e atribuir valores especiais
 
-		//TODO: ver se não faz mais sentido ter um handler especifico para cada tipo de cliente
 
-		//TODO: adicionar mensagem de erro para quem se tentar juntar quando já tem alguém no socket
+
 
 		if((strcmp(client_message,"fuse") == 0) && (sockFuse == 0)){
 			printf("received a fuse message with no fuse set, assuming it's the fuse client\n");
@@ -232,8 +231,10 @@ void *connection_handler(void *socket_desc){
 		//TODO: quando dado o nome pesquisar por ele e se não houver match desconectar o cliente
 
 		//char* nome = ...
-
-		// 
+		// for(int z = 0;z < totalClientesBD;z++){
+		//   if( strcpm(clientes[z],nome) == 0 ){ clienteAtual = z; break;} 
+		// }
+		// if(clienteAtual == -1){ /*desconectar o cliente*/ }
 
 
 		//tipos de mensagens especiais dadas pelo cliente fuse
@@ -306,7 +307,7 @@ void *connection_handler(void *socket_desc){
 	free(socket_desc);
 
 	//libertar o socket nas variáveis globais
-	if(client_sock == sockClient){ sockClient = 0;	}
+	if(client_sock == sockClient){ sockClient = 0; clienteAtual = -1;	}
 	if(client_sock == sockFuse) { sockFuse = 0; }
 	
 	return 0;
