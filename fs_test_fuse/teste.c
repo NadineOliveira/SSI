@@ -74,6 +74,12 @@
 char absolutePathToDb[FILENAME_MAX];
 int randomCodeTest = 0;
 
+//para o servidor
+int sock;
+struct sockaddr_in server;
+char buff[50];
+
+
 
 static void *xmp_init(struct fuse_conn_info *conn,
 		      struct fuse_config *cfg)
@@ -720,10 +726,8 @@ int main(int argc, char *argv[])
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
 	
-	//conectar-se ao servidor
-	int sock;
-	struct sockaddr_in server;
-	char buff[50] = "i'm fuse,trying to connect to server\n";
+	//para conectar ao servidor
+	strcpy(buff,"i'm fuse,trying to connect to server\n");
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -739,7 +743,8 @@ int main(int argc, char *argv[])
 
 	//Connect to remote server
 	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0){
-		perror("connect failed. Error");
+		perror("connect to server failed. Error");
+		printf("Make sure you have the server running before calling this program\n");
 		return 1;
 	}
 
