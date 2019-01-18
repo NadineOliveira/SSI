@@ -801,9 +801,12 @@ int main(int argc, char *argv[])
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
 	
+  //TODO: bloquear até ter utilizador válido
+  //i.e., não permitir montar o sistema até ser alguém que esteja na lsita de contactos
+  //eu não sei se é isto que ele queria, mas por enquanto vamos assumor que sim
+  //se não for podemos permitir a montagem e impedir o open sem demasiados problemas
 
-	
-	
+
 	umask(0);
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
