@@ -128,10 +128,8 @@ int main(int argc , char *argv[]){
 	int read_size;
 	//keep communicating with server
 	getLine ("Introduza o nome de cliente> ", buff, sizeof(buff));
-	printf("%s\n",buff);
 	write(sock , buff , strlen(buff));
 	getLine ("Introduza a diretoria do ficheiro> ", buff, sizeof(buff));
-	printf("%s\n",buff);
 	write(sock , buff , strlen(buff));
 	while(1){
 

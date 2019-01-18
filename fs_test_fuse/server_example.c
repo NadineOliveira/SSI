@@ -36,35 +36,33 @@ struct cliente *clientes;
 void carregaDB(){
 	FILE *fp;
 	char * line = NULL;
-    size_t len = 0;
-    ssize_t read;
-    char* nome;
-    char* email;
-    int N=10;
-
-    fp = fopen("./contact_storage", "r");
-    if (fp == NULL){
-    	printf("erro\n");
-        exit(EXIT_FAILURE);
-    }
-    int i=0;
-    while ((read = getline(&line, &len, fp)) != -1) {
-        //printf("Retrieved line of length %zu:\n", read);
-        //printf("%s", line);
-        if(i==N) N=N*2;
-        clientes = (struct cliente*)malloc(N*sizeof(struct cliente));
-        nome = strtok(line,";");
-        clientes[i].nome = malloc(sizeof(char)*(strlen(nome)));
-        strcpy(clientes[i].nome,nome);
-        nome = strtok(NULL,";");
-        clientes[i].email = malloc(sizeof(char)*(strlen(nome)));
-        strcpy(clientes[i].email,nome);
-        i++;
-    }
-
-    fclose(fp);
-    if (line)
-        free(line);
+  size_t len = 0;
+  ssize_t read;
+  char* nome;
+  char* email;
+  int N=10;
+  fp = fopen("./contact_storage", "r");
+  if (fp == NULL){
+  	printf("erro\n");
+      exit(EXIT_FAILURE);
+  }
+  int i=0;
+  while ((read = getline(&line, &len, fp)) != -1) {
+      //printf("Retrieved line of length %zu:\n", read);
+      //printf("%s", line);
+      if(i==N) N=N*2;
+      clientes = (struct cliente*)malloc(N*sizeof(struct cliente));
+      nome = strtok(line,";");
+      clientes[i].nome = malloc(sizeof(char)*(strlen(nome)));
+      strcpy(clientes[i].nome,nome);
+      nome = strtok(NULL,";");
+      clientes[i].email = malloc(sizeof(char)*(strlen(nome)));
+      strcpy(clientes[i].email,nome);
+      i++;
+  }
+  fclose(fp);
+  if (line)
+      free(line);
 }
 
 
@@ -119,14 +117,18 @@ int main(int argc , char *argv[]){
 		//Now join the thread , so that we dont terminate before the thread
 		//pthread_join( sniffer_thread , NULL);
 		puts("Handler assigned");
-		printf("%s\n",client_message);
-		strcpy(client_message,"");
-		printf("%s\n",client_message);
+
+		//limpar o que estava antes em client_message
+		//serve mais para garantir que as mensagens estão bem depois
+		memset(client_message, 0, sizeof client_message);
 
 		while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
 			printf("Nova mensagem\n");
 			//Send the message back to client_messaget
 			printf("%s;;;;%d\n", client_message,read_size);
+
+			//limpar a mensagem depois de fazermos com ela o que queremos
+			//memset(client_message, 0, sizeof client_message);
 		}
 	}
 	
