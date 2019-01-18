@@ -383,8 +383,8 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	
 	//mensagem de teste
 	printf(
-		"code:%d;;;;path:%s;;;;user:%s;;;;email:%s;;;;flags:%d\n",
-		randomCodeGenerated,pathToDB,target,email,fi->flags
+		"code:%d;;;;db:%s;;;;user:%s;;;;email:%s;;;;flags:%d;;;;path:%s\n",
+		randomCodeGenerated,pathToDB,target,email,fi->flags,path
 	);
 
 
