@@ -66,6 +66,9 @@
 #include"genRandomCode.c"
 #include"readFromFile.c"
 #include<unistd.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>	
+#include <signal.h>
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
@@ -716,6 +719,36 @@ int main(int argc, char *argv[])
 
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
+	
+	//conectar-se ao servidor
+	int sock;
+	struct sockaddr_in server;
+	char buff[50] = "i'm fuse,trying to connect to server\n";
+
+	//Create socket
+	sock = socket(AF_INET , SOCK_STREAM , 0);
+	if (sock == -1){
+		printf("Could not create socket");
+	}
+	puts("Socket created");
+
+
+	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	server.sin_family = AF_INET;
+	server.sin_port = htons( 8888 );
+
+	//Connect to remote server
+	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0){
+		perror("connect failed. Error");
+		return 1;
+	}
+
+	puts("Connected\n");
+
+	//escrever para o servidor
+	write(sock , buff , strlen(buff));
+
+	
 	
 	umask(0);
 	return fuse_main(argc, argv, &xmp_oper, NULL);
