@@ -273,6 +273,7 @@ void *connection_handler(void *socket_desc){
 		//ou um pedido do email do utilizador: emailToFuse
 
 		if((strcmp(client_message,"emailToFuse") == 0) && (client_sock == sockFuse)){
+			//efetivamente é o fuse a pedir pelo email do cliente atual
 			write(client_sock,clientes[clienteAtual].email,strlen(clientes[clienteAtual].email));
 		}
 		

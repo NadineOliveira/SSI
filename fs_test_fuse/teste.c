@@ -501,6 +501,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 			}
 		}
 
+		//TODO: adicionar o temporizador aqui
 		//note-se que o if acima deverá estar entre um while
 		//que nos conta o tempo a passar(ou algo semelhante)
 
@@ -528,7 +529,10 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 
 
-	//coisas antigas abaixo, ckomentadas para o caso de precisarmos delas depois
+
+
+
+	//coisas antigas abaixo, comentadas para o caso de precisarmos delas depois
 	/*
 	int size = 1000;
 
