@@ -394,6 +394,11 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//ele faz open 2 vezes porque precisa tanto de ler como de escrever no ficheiro
 	// isto significa que esta função é chamada 2 vezes
 	//o problema deve tornar-se extremamente obvio sabendo isto
+
+	// pelo menos parece que o código é o mesmo para um ficheiro
+	//tenho que ver como isso funciona
+	
+	printf("%d\n",fi->flags);
 	
 
 	res = open(path, fi->flags);
