@@ -77,6 +77,7 @@
 char absolutePathToDb[FILENAME_MAX];
 int randomCodeTest = -1;
 
+#define SIZE 1000
 
 
 //funções auxiliares
@@ -467,8 +468,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 
 	if(randomCodeTest != randomCodeGenerated){
-		int size = 1000,read_size;
-		char* codeFromUser = (char*)malloc(sizeof(char)*size);
+		char* codeFromUser = (char*)malloc(sizeof(char)*SIZE);
 
 		randomCodeTest = randomCodeGenerated;
 
@@ -499,7 +499,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//passo 3: obter código do utilizador que é passado ao servidor e depois para aqui
 		//e comparar com o que temos
 
-    getLine("introduza o código que lhe foi dado por email",codeFromUser,sizeof codeFromUser);
+    getLine("introduza o código que lhe foi dado por email",codeFromUser,SIZE);
 
 
 		int codeFromUserConverted;
@@ -853,8 +853,7 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
-  int size = 1000;
-  char* username = (char*)malloc(sizeof(char)*size);
+  char* username = (char*)malloc(sizeof(char)*SIZE);
 
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
@@ -873,7 +872,7 @@ int main(int argc, char *argv[])
 
 
   //pedir utilizador 
-  getline("Adicione o seu nome de utilizador",username,size);
+  getline("Adicione o seu nome de utilizador",username,SIZE);
 
   //verificar se existe na base de dados
   for(int z = 0;z < totalClientesBD;z++){
