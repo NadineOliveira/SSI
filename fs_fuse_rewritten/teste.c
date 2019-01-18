@@ -139,8 +139,7 @@ void carregaDB(){
   char* email;
   int N=10;
 	//caminho para a base de dados
-	//assume que está em contact_storage na mesma pasta que este ficheiro
-  fp = fopen("./contact_storage", "r");
+  fp = fopen(absolutePathToDb, "r");
   if (fp == NULL){
   	printf("erro\n");
       exit(EXIT_FAILURE);
