@@ -236,13 +236,25 @@ void *connection_handler(void *socket_desc){
 		//será pouco mais que escrever para o cliente qual a mensagem de erro
 
 		if((strcmp(client_message,"tempoEsgotado") == 0) && (client_sock == sockFuse)){
-
+			write(
+				client_sock,
+				"Acabou o tempo para colocar o código, open cancelado",
+				strlen("Acabou o tempo para colocar o código, open cancelado")
+			);
 		}
 		if((strcmp(client_message,"codigoIncorreto") == 0) && (client_sock == sockFuse)){
-			
+			write(
+				client_sock,
+				"Código introduzido incorreto, por fazor introduza o código que lhe foi dado para o seu email",
+				strlen("Código introduzido incorreto, por fazor introduza o código que lhe foi dado para o seu email")
+			);
 		}
 		if((strcmp(client_message,"erroEmail") == 0) && (client_sock == sockFuse)){
-			
+			write(
+				client_sock,
+				"Ocorreu um erro entre a comunicação do email entre servidor e o fuse, por favor volte a tentar o open",
+				strlen("Ocorreu um erro entre a comunicação do email entre servidor e o fuse, por favor volte a tentar o open")
+			);
 		}
 
 		//TODO:definir depois
