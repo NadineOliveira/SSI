@@ -176,18 +176,6 @@ int main(int argc , char *argv[]){
 	//	}
 
 
-	
-	}
-	
-	
-	if(read_size == 0){
-		puts("Client disconnected");
-		fflush(stdout);
-	}else if(read_size == -1){
-		perror("recv failed");
-	}
-	
-	return 0;
 }
 
 
