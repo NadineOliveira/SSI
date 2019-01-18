@@ -361,29 +361,32 @@ static int xmp_create(const char *path, mode_t mode,
 
 static int xmp_open(const char *path, struct fuse_file_info *fi){
 
-	printf("open");
+	printf("open\n");
 
 	int res;
-
+	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
-
-	printf("   generated code:%d\n",randomCodeGenerated);
 
 	int size = 1000;
 
 	char* pathToDB = (char*)malloc(sizeof(char)*size);
 	char* target = (char*)malloc(sizeof(char)*size);
 
+	//caminho para a base de dados
+	//assume que está na mesma diretoria deste ficheiro
 	strcpy(pathToDB,absolutePathToDb);
 	strcat(pathToDB,"/contact_storage");
 
-	printf("path to db:%s\n",pathToDB);
-	
+	//obter email a partir de nome
 	strcpy(target,"test");
-
 	char* email = getEmailFromFile(pathToDB,target);
+	
+	//mensagem de teste
+	printf(
+		"code:%d;;;;path:%s;;;;user:%s;;;;email:%s;;;;flags:%d\n",
+		randomCodeGenerated,pathToDB,target,email,fi->flags
+	);
 
-	printf("For user %s we've discovered email %s\n",target,email);
 
 	//ok
 	//isto vamos ter de ter cuidado por uma razão espeficica:
@@ -398,7 +401,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	// pelo menos parece que o código é o mesmo para um ficheiro
 	//tenho que ver como isso funciona
 	
-	printf("%d\n",fi->flags);
 	
 
 	res = open(path, fi->flags);
