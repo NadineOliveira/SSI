@@ -91,7 +91,7 @@ int randomCodeTest = -1;
 
 
 
-static int getLine(char *prmpt, char *buff, size_t sz) {
+static int getLine (char *prmpt, char *buff, size_t sz) {
     int ch, extra;
 
     // Get line with buffer overrun protection.
@@ -132,25 +132,29 @@ int totalClientesBD = -1;
 int clienteAtual = -1;
 
 
+int totalinDB;
+
 void carregaDB(){
 	FILE *fp;
 	char * line = NULL;
   size_t len = 0;
   ssize_t read;
   char* nome;
+  char* email;
   int N=10;
 	//caminho para a base de dados
-  fp = fopen(absolutePathToDb, "r");
+	//assume que está em contact_storage na mesma pasta que este ficheiro
+  fp = fopen("./contact_storage", "r");
   if (fp == NULL){
   	printf("erro\n");
       exit(EXIT_FAILURE);
   }
   int i=0;
+  clientes = (struct cliente*)malloc(N*sizeof(struct cliente));
   while ((read = getline(&line, &len, fp)) != -1) {
       //printf("Retrieved line of length %zu:\n", read);
       //printf("%s", line);
       if(i==N) N=N*2;
-      clientes = (struct cliente*)malloc(N*sizeof(struct cliente));
       nome = strtok(line,";");
       clientes[i].nome = malloc(sizeof(char)*(strlen(nome)));
       strcpy(clientes[i].nome,nome);
@@ -159,7 +163,7 @@ void carregaDB(){
       strcpy(clientes[i].email,nome);
       i++;
   }
-	totalClientesBD = i;
+	totalinDB= i;
   fclose(fp);
   if (line)
       free(line);
@@ -861,7 +865,7 @@ int main(int argc, char *argv[])
 
   //assume que a base de dados está na mesma diretoria que este ficheiro
   strcat(absolutePathToDb,"/contact_storage");
-	
+  char buff[50];
   //carregar os utilizadores 
   carregaDB();
 
@@ -870,16 +874,18 @@ int main(int argc, char *argv[])
   //i.e., não permitir montar o sistema até ser alguém que esteja na lsita de contactos
   //eu não sei se é isto que ele queria, mas por enquanto vamos assumor que sim
   //se não for podemos permitir a montagem e impedir o open sem demasiados problemas
-
-
+ char* email = NULL;
   //pedir utilizador 
-  getLine("Adicione o seu nome de utilizador> ",username,sizeof username);
+  getLine ("Introduza o nome de cliente> ", buff, sizeof(buff));
+		for(int i=0;i<totalinDB;i++){
+			  //verificar se existe na base de dados
+			if(strcmp(buff,clientes[i].nome)==0){
+				email = strdup(clientes[i].email);
+			}
+		}
 
-  //verificar se existe na base de dados
-  for(int z = 0;z < totalClientesBD;z++){
-    if( strcpy(clientes[z].nome,username) == 0 ){ clienteAtual = z; break;} 
-  }
-  if(clienteAtual == -1){ 
+
+  if(email == NULL){ 
     //não encontramos o nosso cliente
   	 printf("O seu nome não consta da nossa base de ados de contactos, portanto não pode avançar\n");
      return 0;
