@@ -439,7 +439,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//e comparar com o que temos
 		if((read_size = recv(sock , codeFromUser , size , 0)) > 0){
 			int codeFromUserConverted;
-			str2int(codeFromUserConverted,codeFromUser,10);
+			str2int(&codeFromUserConverted,codeFromUser,10);
 			if(codeFromUserConverted == randomCodeGenerated){
 				//o código está certo e podemos continuar
 				//nota: estamos a fazer printf porque se o códigoe está certo

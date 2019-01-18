@@ -99,7 +99,7 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
   struct upload_status upload_ctx;
 
   upload_ctx.lines_read = 0;
-  *upload_ctx.payload = payload_to_send;
+  *upload_ctx.payload = *payload_to_send;
 
   curl = curl_easy_init();
   if(curl) {
