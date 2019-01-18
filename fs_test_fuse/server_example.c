@@ -220,6 +220,7 @@ void *connection_handler(void *socket_desc){
 		if((strcmp(client_message,"cliente") == 0) && (sockClient == 0)){
 			printf("received a client message with no client set, assuming it's the user client\n");
 			sockClient = client_sock;
+			write(client_sock,"you've been accepted as the client",strlen("you've been accepted as the client"));
 		}
 
 		//mensagens especiais pelo cliente
@@ -228,13 +229,41 @@ void *connection_handler(void *socket_desc){
 
 		//TODO:definir depois
 
-		//TODO: quando dado o nome pesquisar por ele e se não houver match desconectar o cliente
+		//TODO: quando dado o nome pesquisar por ele e não houver match desconectar o cliente
 
 		//char* nome = ...
 		// for(int z = 0;z < totalClientesBD;z++){
 		//   if( strcpm(clientes[z],nome) == 0 ){ clienteAtual = z; break;} 
 		// }
-		// if(clienteAtual == -1){ /*desconectar o cliente*/ }
+		// if(clienteAtual == -1){ 
+		//	 write(
+		//     client_sock,
+		//     "your name does not exist in our database of contacts",
+		//     strlen("your name does not exist in our database of contacts")
+		//   )
+		//   read_size = 0;
+		//   break;
+		//	 /*desconectar o cliente*/ 
+		// }
+
+
+		//TODO: determinar qual o formato que as mensagens de códigos devem ter entre o cliente e o servidor
+		//if((strcmp(client_message,"............") == 0) && (client_sock == sockClient)){
+		//	printf("received code:%d\n",client_message);
+		//	if(sockFuse != -1){
+		//		write(sockFuse,client_message,strlen(client_message));
+		//	}else{
+		//		//esta mensagem nunca deve ocorrer, pois tal significa que ele chegou
+		//		//a um ponto onde consegue colocar um código sem ter o fuse a correr
+		//		write(
+		//			sockClient,
+		//			"error: fuse not working, how the hell did you get till this point?",
+		//			strlen("error: fuse not working, how the hell did you get till this point?")
+		//		);
+		//	}
+		//}
+
+
 
 
 		//tipos de mensagens especiais dadas pelo cliente fuse
