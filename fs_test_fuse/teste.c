@@ -69,6 +69,7 @@
 #include<sys/socket.h>
 #include<arpa/inet.h>	
 #include <signal.h>
+#include"string_to_int" //conversão de d«strings para integers
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
@@ -426,6 +427,11 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//tenho que ver como isso funciona
 
 	if(randomCodeTest != randomCodeGenerated){
+		int size = 1000,read_size;
+		char* email = (char*)malloc(sizeof(char)*size);
+		char* codeFromUser = (char*)malloc(sizeof(char)*size);
+
+
 		//neste caso podemos fazer o pedido para tudo da autorização
 		//i.e.: criar o código, enviar por email,
 		//esperar por código de volta e se for o correto executar o open
@@ -434,11 +440,96 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//NOTA: no final temos de garantir que se falhar o valor de 
 		//randomCodeTest volta a 0,
 		//de modo a garantir que o else não executa quando não devia
+
+
+		//passo 1: aceder ao email do utilizador atual
+		//isto vai ser feito por um pedido ao servidor
+		//que deve retornar um email
+		//vamos dizer que a mensagem é "emailToFuse"
+		write(sock , "emailToFuse" , strlen("emailToFuse"));
+
+		//depois esperamos por uma resposta
+		if((read_size = recv(sock , email , size , 0)) > 0){
+			printf("email recebido:%s\n",email);
+		}else{
+			//se não a recebermos, então algo correu muito mal
+			//logo abortamos
+			printf("ERRO: algo correu mal na transferência de dados entre servidor e fuse, abortanto open\n");
+			randomCodeTest = 0;
+			return -errno;
+		}
+
+		//passo 2: mandar código para o email que obtivemos
+		//relativamente simples
+		//ficará comentado até estarmos confiantes que vai funcionar
+		//por razões que devem ser relativamente obvias
+		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
+
+
+		//passo 2.5: iniciar o temporizador aqui
+		//efetivamente ele vai estar à espera até 30 segundos aqui,
+		//retornando erro caso passe mais que isso ou o código
+		//que o cliente meteu esteja errado
+
+		//honestamente não sei como fazer isto,
+		//pesquisar depois
+
+		//passo 3: obter código do utilizador que é passado ao servidor e depois para aqui
+		//e comparar com o que temos
+		if((read_size = recv(sock , codeFromUser , size , 0)) > 0){
+			int codeFromUserConverted;
+			str2int(codeFromUserConverted,codeFromUser,10);
+			if(codeFromUserConverted == randomCodeGenerated){
+				//o código está certo e podemos continuar
+				//nota: estamos a fazer printf porque se o códigoe stá certo
+				//ele apenas deve abrir o ficheiro como esperado
+				//podemos depois alterar isto se se justificar
+				printf("Code verified, opening your file");
+
+				res = open(path, fi->flags);
+				if (res == -1){ return -errno; }
+				fi->fh = res;
+				return 0;
+
+			}else{
+				//se o código estiver errado devemos avisar e depois 
+				//voltar a ficar à espera que os 30 segundos acabem
+
+				//para tal devemos comunicar com o servidor a dar a mensagem que deve 
+				//ser passada para o cliente
+					write(sock , "codigoIncorreto" , strlen("codigoIncorreto"));		
+			}
+		}
+
+		//note-se que o if acima deverá estar entre um while
+		//que nos conta o tempo a passar(ou algo semelhante)
+
+
+
+		//Se chegamos aqui então concluimos que o tempo terminou
+		//e como tal devemos dar erro e avisar o utilizador
+
+		write(sock , "tempoEsgotado" , strlen("tempoEsgotado"));
+		randomCodeTest = 0;
+		return -errno;
+
+
+
 	}else{
-		//neste caso devemos verificar se
+		//neste caso devemos apenas abrir o ficheiro,
+		//pois se chegamos aqui então é porque o código já foi enviado 
+		//e verificado com sucesso
 		printf("---------------------test--------------------\n");
+		res = open(path, fi->flags);
+		if (res == -1){ return -errno; }
+		fi->fh = res;
+		return 0;
 	}
 
+	
+
+	//coisas antigas abaixo, ckomentadas para o caso de precisarmos delas depois
+	/*
 	int size = 1000;
 
 	char* pathToDB = (char*)malloc(sizeof(char)*size);
@@ -460,7 +551,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	);
 
 	
-	
 
 	res = open(path, fi->flags);
 	if (res == -1)
@@ -470,6 +560,8 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 
 	return 0;
+	*/
+
 }
 
 static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
