@@ -431,7 +431,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
 		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
     
-
+    //TODO: no final retirar o código deste print, deve ser obvio porque
 		printf("Código enviado para%s\n%d\n",emailFromUser,randomCodeGenerated);
 
 
@@ -445,17 +445,18 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//passo 3: obter código do utilizador que é passado ao servidor e depois para aqui
 		//e comparar com o que temos
 
-    getLine("introduza o código que lhe foi dado por email")
+    getLine("introduza o código que lhe foi dado por email",codeFromUser,sizeof codeFromUser);
 
-		if((read_size = recv(sock , codeFromUser , size , 0)) > 0){
-			int codeFromUserConverted;
-			str2int(&codeFromUserConverted,codeFromUser,10);
-			if(codeFromUserConverted == randomCodeGenerated){
+
+		int codeFromUserConverted;
+		str2int(&codeFromUserConverted,codeFromUser,10);
+
+    if(codeFromUserConverted == randomCodeGenerated){
 				//o código está certo e podemos continuar
 				//nota: estamos a fazer printf porque se o códigoe está certo
 				//ele apenas deve abrir o ficheiro como esperado
 				//podemos depois alterar isto se se justificar
-				printf("Code verified, opening file");
+				printf("Código verificado, abrindo o ficheiro\n");
 
 				res = open(path, fi->flags);
 				if (res == -1){ return -errno; }
@@ -468,9 +469,11 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 				//para tal devemos comunicar com o servidor a dar a mensagem que deve 
 				//ser passada para o cliente
-				write(sock , "codigoIncorreto" , strlen("codigoIncorreto"));		
+
+        printf("O código que introduziu está incorreto, por favor volte a tentar\n");
 			}
-		}
+
+
 		//que nos conta o tempo a passar(ou algo semelhante)
 
 
