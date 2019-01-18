@@ -35,6 +35,11 @@ char* returnContactIfItMatches(char* pathToFile,char* recordToTest){
     }
   }
 
+  //remove the newline at the end
+  int len = strlen(email);
+  if( email[len-1] == '\n' ){email[len-1] = 0;}
+    
+
   fclose(fptr); 
 
   //printf("name:%s ; email:%s\n",person,email);
