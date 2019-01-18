@@ -66,7 +66,6 @@
 //TODO: atualizar isto
 
 #include"genRandomCode.c"
-#include"readFromFile.c"
 #include<unistd.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>	
@@ -89,7 +88,10 @@ int randomCodeTest = -1;
 #define NO_INPUT 1
 #define TOO_LONG 2
 
-static int getLine (char *prmpt, char *buff, size_t sz) {
+
+
+
+static int getLine(char *prmpt, char *buff, size_t sz) {
     int ch, extra;
 
     // Get line with buffer overrun protection.
@@ -136,7 +138,6 @@ void carregaDB(){
   size_t len = 0;
   ssize_t read;
   char* nome;
-  char* email;
   int N=10;
 	//caminho para a base de dados
   fp = fopen(absolutePathToDb, "r");
@@ -872,11 +873,11 @@ int main(int argc, char *argv[])
 
 
   //pedir utilizador 
-  getline("Adicione o seu nome de utilizador",username,SIZE);
+  getLine("Adicione o seu nome de utilizador> ",username,sizeof username);
 
   //verificar se existe na base de dados
   for(int z = 0;z < totalClientesBD;z++){
-    if( strcpm(clientes[z].nome,username) == 0 ){ clienteAtual = z; break;} 
+    if( strcpy(clientes[z].nome,username) == 0 ){ clienteAtual = z; break;} 
   }
   if(clienteAtual == -1){ 
     //não encontramos o nosso cliente
@@ -884,8 +885,14 @@ int main(int argc, char *argv[])
      return 0;
   }else{
     //corremos o fuse
-    umask(0);
-    return fuse_main(argc, argv, &xmp_oper, NULL);
+
+    printf("utilizador detetado, montando o fuse em %s\n",absolutePathToDb);
+    printf("para usar o novo sistema apenas tem de usar a bash e funcionará como normal, excepto para abrir ficheiros.\n");
+    printf("Para a abertura de ficheiros terá de providenciar um código que será dado via %s\n", clientes[clienteAtual].email);
+
+    //TODO: descomentar isto quando a testar o sistema em si
+    //umask(0);
+    //return fuse_main(argc, argv, &xmp_oper, NULL);
   }
 
 }
