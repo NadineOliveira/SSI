@@ -33,6 +33,12 @@ struct cliente
 
 struct cliente *clientes;
 
+//para especificar quem o fuse e quem o cliente
+int sockFuse = 0;
+int sockClient = 0;
+
+
+
 void carregaDB(){
 	FILE *fp;
 	char * line = NULL;
@@ -41,6 +47,8 @@ void carregaDB(){
   char* nome;
   char* email;
   int N=10;
+	//caminho para a base de dados
+	//assume que está em contact_storage na mesma pasta que este ficheiro
   fp = fopen("./contact_storage", "r");
   if (fp == NULL){
   	printf("erro\n");
@@ -127,91 +135,47 @@ int main(int argc , char *argv[]){
 		return 1;
 	}
 
-	
-
-
-
-	char* dir = "Introduza a diretoria do ficheiro: ";
-	write(client_sock , dir , strlen(dir));
-	int l;
-	char* cod=NULL;
-	char* file=NULL;
-	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
-
-
-
-
-	//coisas a fazer depois da diretoria ter sido chamada:
-	//1-gerar o código(através de genMultRandom() de getRandomCode.c)
-	//2-enviar dito código para o email do utilzador
-		//2.1- descobrir o email do utilziador(getEmailFromFile(path,target) de readFromFile)
-		//2.2- mandar o email(sendMailToSomeoneWithACode(target,codeToSend) de sendEmail.c)
-
-	
-	//gerar código aleatório
-	int codigoGerado = genMultRandom();
-
-	//caminho para a base de dados
-	//nota: no produto final devemos decidir onde vai estar
-	//mas por agora estará em contact_storage
-	char* databaseForUsersEmails = "./contact_storage";
+	//nota: o utilizador atual deve ser inicializado no connection handler abaixo e não aqui
+	//isto só fica aqui temporáriamente
 
 	//utilizador atual
-	//nota: provavelmente vamos requirir que ele coloque o seu nome
-	//ao conectar-se ao servidor, depois vemos se tem email associado
-	//e caso não o tenha desconectar
-	//por enquanto fica apenas a variável que depois temos de preencher
 	char* userAtual;
 
-	//obter o email do utilizador
-	//vai ficar comentado até lermos o nome do utilizador
-	//char* email = getEmailFromFile(databaseForUsersEmails,userAtual);
+	//email do utilizador
+	char* email;
 
-	//verificar se o email é vazio ou não
-	//se for concluimos que o utilizador não está na base de dados
-	//logo, desconectamos
-	//mais tarde devemos usar sockets para evitar atirar o servidor abaixo
-	//quando fazemos isto
-	//if(strcmp(email,"") == 0){ printf("utilizador não encontrado"); exit(1);}
 
-	//se tivermos o email, mandamos o código para ele e começamos a contar o tempo
-	//provavelmente vamos ter de reformular o sCalls.c para isto funcionar
-	//else{ 	
-	//	sendMailToSomeoneWithACode(email,codigoGerado) 	
-	//	.... //começar o temporizador do servidor 	
-	//  .... //pedir código do utilizador e esperar por resposta
-	//  .... //se ainda for antes dos 30 seguntos e o código for válido, abrir o ficheiro
-	//  .... //caso contrário, desconectar utilizador
-	//}
-
+	//o comentado abaixo deve ser obsoleto, mas está assim para o caso de precisarmos de alguma coisa
 
 	//Receive a message from client
 
-	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
+	//while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
+//
+	//	//Send the message back to client_messaget
+	//	printf("%s\n", client_message);
+	//	dir = "Introduza o codigo enviado: ";
+	//	
+	//	if(cod==NULL)
+	//		cod = strdup(client_message);
+	//	else
+	//		file = strdup(client_message);
+//
+	//	printf("enviou cliente\n");
+	//	write(client_sock , dir , strlen(dir));
+	//	
+	//	if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
+	//	
+	//	//o abaixo é o suposto colocar-mos quando estiver a funcionar
+	//	//if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,codigoGerado); }
+//
+	//	
+	//	write(client_sock , client_message , strlen(client_message));
+	//	
+	//	for(l=0;l<read_size * 10;l++){
+	//		client_message[l] = ' ';
+	//	}
 
-		//Send the message back to client_messaget
-		printf("%s\n", client_message);
-		dir = "Introduza o codigo enviado: ";
-		
-		if(cod==NULL)
-			cod = strdup(client_message);
-		else
-			file = strdup(client_message);
 
-		printf("enviou cliente\n");
-		write(client_sock , dir , strlen(dir));
-		
-		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
-		
-		//o abaixo é o suposto colocar-mos quando estiver a funcionar
-		//if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,codigoGerado); }
-
-		
-		write(client_sock , client_message , strlen(client_message));
-		
-		for(l=0;l<read_size * 10;l++){
-			client_message[l] = ' ';
-		}
 	
 	}
 	
@@ -244,9 +208,25 @@ void *connection_handler(void *socket_desc){
 		printf("Nova mensagem\n");
 		//Send the message back to client_messaget
 		printf("%s;;;;%d\n", client_message,read_size);
-		if(strcmp(client_message,"fuse") == 0){
-			printf("received a fuse message\n");
+
+		//identificar o tipo de cliente
+		//e atribuir valores especiais
+
+		if((strcmp(client_message,"fuse") == 0) && (sockFuse == 0)){
+			printf("received a fuse message with no fuse set, assuming it's the fuse client\n");
+			sockFuse = client_sock;
 		}
+		if((strcmp(client_message,"cliente") == 0) && (sockClient == 0)){
+			printf("received a client message with no client set, assuming it's the user client\n");
+			sockClient = client_sock;
+		}
+
+		//tipos de mensagens especiais dadas pelo cliente fuse
+		//para serem transmitidas ao cliente
+		//são erros que podem ocorrer durante o processo de modo a avisar ao cliente que algo correu mal
+		// tempoEsgotado ; codigoIncorreto ; erroEmail
+
+
 		//limpar a mensagem depois de fazermos com ela o que queremos
 		memset(client_message, 0, sizeof client_message);
 	}

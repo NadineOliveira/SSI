@@ -454,7 +454,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		}else{
 			//se não a recebermos, então algo correu muito mal
 			//logo abortamos
-			printf("ERRO: algo correu mal na transferência de dados entre servidor e fuse, abortanto open\n");
+			write(sock , "erroEmail" , strlen("erroEmail"));
 			randomCodeTest = 0;
 			return -errno;
 		}
@@ -497,7 +497,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 				//para tal devemos comunicar com o servidor a dar a mensagem que deve 
 				//ser passada para o cliente
-					write(sock , "codigoIncorreto" , strlen("codigoIncorreto"));		
+				write(sock , "codigoIncorreto" , strlen("codigoIncorreto"));		
 			}
 		}
 
@@ -526,7 +526,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		return 0;
 	}
 
-	
+
 
 	//coisas antigas abaixo, ckomentadas para o caso de precisarmos delas depois
 	/*
@@ -830,8 +830,6 @@ int main(int argc, char *argv[])
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
 	
-	//para conectar ao servidor
-	strcpy(buff,"fuse");
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -854,8 +852,10 @@ int main(int argc, char *argv[])
 
 	puts("Connected\n");
 
-	//escrever para o servidor
+	//identificar como fuse
+	strcpy(buff,"fuse");
 	write(sock , buff , strlen(buff));
+	
 
 	
 	

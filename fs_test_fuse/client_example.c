@@ -118,10 +118,14 @@ int main(int argc , char *argv[]){
 		perror("connect failed. Error");
 		return 1;
 	}
-	
-
 
 	puts("Connected\n");
+
+	//identificar como o cliente
+	strcpy(buff,"cliente");
+	write(sock , buff , strlen(buff));
+	//limpar o buffer 
+	memset(buff, 0, sizeof buff);
 
 
 	

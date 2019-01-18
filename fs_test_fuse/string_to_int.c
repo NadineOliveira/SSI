@@ -54,40 +54,40 @@ str2int_errno str2int(int *out, char *s, int base) {
 
 int main(void) {
     int i;
-    /* Lazy to calculate this size properly. */
+    /* Lazy to calculate this size properly. 
     char s[256];
 
-    /* Simple case. */
+    /* Simple case. 
     assert(str2int(&i, "11", 10) == STR2INT_SUCCESS);
     assert(i == 11);
 
-    /* Negative number . */
+    /* Negative number . 
     assert(str2int(&i, "-11", 10) == STR2INT_SUCCESS);
     assert(i == -11);
 
-    /* Different base. */
+    /* Different base. 
     assert(str2int(&i, "11", 16) == STR2INT_SUCCESS);
     assert(i == 17);
 
-    /* 0 */
+    /* 0 
     assert(str2int(&i, "0", 10) == STR2INT_SUCCESS);
     assert(i == 0);
 
-    /* INT_MAX. */
+    /* INT_MAX. 
     sprintf(s, "%d", INT_MAX);
     assert(str2int(&i, s, 10) == STR2INT_SUCCESS);
     assert(i == INT_MAX);
 
-    /* INT_MIN. */
+    /* INT_MIN. 
     sprintf(s, "%d", INT_MIN);
     assert(str2int(&i, s, 10) == STR2INT_SUCCESS);
     assert(i == INT_MIN);
 
-    /* Leading and trailing space. */
+    /* Leading and trailing space. 
     assert(str2int(&i, " 1", 10) == STR2INT_INCONVERTIBLE);
     assert(str2int(&i, "1 ", 10) == STR2INT_INCONVERTIBLE);
 
-    /* Trash characters. */
+    /* Trash characters. 
     assert(str2int(&i, "a10", 10) == STR2INT_INCONVERTIBLE);
     assert(str2int(&i, "10a", 10) == STR2INT_INCONVERTIBLE);
 
@@ -95,28 +95,27 @@ int main(void) {
      *
      * `if` needed to avoid undefined behaviour
      * on `INT_MAX + 1` if INT_MAX == LONG_MAX.
-     */
+     
     if (INT_MAX < LONG_MAX) {
         sprintf(s, "%ld", (long int)INT_MAX + 1L);
         assert(str2int(&i, s, 10) == STR2INT_OVERFLOW);
     }
 
-    /* int underflow */
+    /* int underflow 
     if (LONG_MIN < INT_MIN) {
         sprintf(s, "%ld", (long int)INT_MIN - 1L);
         assert(str2int(&i, s, 10) == STR2INT_UNDERFLOW);
     }
 
-    /* long overflow */
+    /* long overflow 
     sprintf(s, "%ld0", LONG_MAX);
     assert(str2int(&i, s, 10) == STR2INT_OVERFLOW);
 
-    /* long underflow */
+    /* long underflow 
     sprintf(s, "%ld0", LONG_MIN);
     assert(str2int(&i, s, 10) == STR2INT_UNDERFLOW);
 
     return EXIT_SUCCESS;
 }
-
 
 */
