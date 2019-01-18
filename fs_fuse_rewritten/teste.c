@@ -501,7 +501,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
     getLine("introduza o código que lhe foi dado por email",codeFromUser,SIZE);
 
-
+    //converter a string em inteiro
 		int codeFromUserConverted;
 		str2int(&codeFromUserConverted,codeFromUser,10);
 
