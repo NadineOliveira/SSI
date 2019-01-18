@@ -145,6 +145,10 @@ int main(int argc , char *argv[]){
 	char* email;
 
 
+
+
+
+
 	//o comentado abaixo deve ser obsoleto, mas está assim para o caso de precisarmos de alguma coisa
 
 	//Receive a message from client
@@ -188,7 +192,6 @@ void *connection_handler(void *socket_desc){
 	int read_size;
 	char *message , client_message[2000];
 	
-	//Send some messages to the client
 	//limpar o que estava antes em client_message
 	//serve mais para garantir que as mensagens estão bem depois
 	memset(client_message, 0, sizeof client_message);
@@ -209,22 +212,45 @@ void *connection_handler(void *socket_desc){
 			sockClient = client_sock;
 		}
 
+		//mensagens especiais pelo cliente
+		//deverão ser a mensagem com o nome de utilizador
+		// e com o código que lhe foi pedido
+
+		//tODO:definir depois
+
+
+
 		//tipos de mensagens especiais dadas pelo cliente fuse
 		//para serem transmitidas ao cliente
 		//são erros que podem ocorrer durante o processo de modo a avisar ao cliente que algo correu mal
 		// tempoEsgotado ; codigoIncorreto ; erroEmail
 
+		//TODO:definir depois
+
 
 		//limpar a mensagem depois de fazermos com ela o que queremos
 		memset(client_message, 0, sizeof client_message);
 	}
+
+
+
+	//abaixo está o código original, obsoleto neste momento, ver acima
+
+	/*
+	//Send some messages to the client
+	message = "Greetings! I am your connection handler\n";
+	write(sock , message , strlen(message));
 	
+	message = "Now type something and i shall repeat what you type \n";
+	write(sock , message , strlen(message));	
+
 	//Receive a message from client
 	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
 		//Send the message back to client
 		write(client_sock , client_message , strlen(client_message));
 	}
-	
+	*/
+
 	if(read_size == 0){
 		puts("Client disconnected");
 		fflush(stdout);
