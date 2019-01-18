@@ -368,8 +368,42 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
 	
-	if(randomCodeTest == randomCodeGenerated){printf("---------------------test--------------------\n");}
-	else{randomCodeTest =randomCodeGenerated;}
+	//se for verdade podemos concluir que ainda temos de pedir pelo código
+	//do utilizador para poder aceder
+	//para tal temos de fazer uma quabtas coisas:
+
+	//0- obter o nome do utilizador
+	//NOTA: o utilizador já deve ter sido confirmado
+	//como existente na base de dados pelo servidor
+	//acima que está a lidar com os pedidos do cliente
+	//este passo provavelmente será feito pelo servidro
+	//a contactar com o sistema de ficheiros
+
+	//1-obter o email do utilizador de alguma forma
+	//assumo que vai passar por colocar o email do
+	//utilizador atual num ficheiro à parte e ler 
+	//aqui o valor nesse ficheiro
+
+	//2- mandar o código gerado para dito email e começar a espera
+	
+	//3- obter o código do utilizador
+	//para fazermos isto provavelmente será de modo semelhante a obter o email
+
+	//4- abrir se o código estiver correto, dar erro caso contrário
+	
+
+	//NOTA: depois de escrever o acima lembrei-me que
+	//o nosso servidor pode servir vários clientes
+	//uma maneira de lidar-mos com isto seria colocar isto
+	//como cliente do servidor e indo passando parametros
+	//dessa maneira
+
+
+	if(randomCodeTest != randomCodeGenerated){
+		randomCodeTest = randomCodeGenerated;
+	}else{
+		printf("---------------------test--------------------\n");
+	}
 
 	int size = 1000;
 
