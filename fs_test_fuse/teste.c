@@ -69,6 +69,7 @@
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
+int randomCodeTest = 0;
 
 
 static void *xmp_init(struct fuse_conn_info *conn,
@@ -366,6 +367,9 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	int res;
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
+	
+	if(randomCodeTest == randomCodeGenerated){printf("---------------------test--------------------\n");}
+	else{randomCodeTest =randomCodeGenerated;}
 
 	int size = 1000;
 
