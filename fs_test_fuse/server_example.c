@@ -127,6 +127,10 @@ int main(int argc , char *argv[]){
 			//Send the message back to client_messaget
 			printf("%s;;;;%d\n", client_message,read_size);
 
+			if(strcmp(client_message,"fuse") == 0){
+				printf("received a fuse message\n");
+			}
+
 			//limpar a mensagem depois de fazermos com ela o que queremos
 			memset(client_message, 0, sizeof client_message);
 		}

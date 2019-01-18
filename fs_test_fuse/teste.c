@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
 	printf("Current directory:%s\n",absolutePathToDb);
 	
 	//para conectar ao servidor
-	strcpy(buff,"i'm fuse,trying to connect to server\n");
+	strcpy(buff,"fuse");
 
 	//Create socket
 	sock = socket(AF_INET , SOCK_STREAM , 0);
