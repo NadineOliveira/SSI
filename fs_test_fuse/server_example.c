@@ -111,21 +111,25 @@ int main(int argc , char *argv[]){
 	puts("Waiting for incoming connections...");
 	c = sizeof(struct sockaddr_in);
 	while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
-		puts("Connection accepted");
-		
-		pthread_t sniffer_thread;
-		new_sock = malloc(1);
-		*new_sock = client_sock;
-		
-		if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0){
-			perror("could not create thread");
-			return 1;
-		}
-		
-		//Now join the thread , so that we dont terminate before the thread
-		//pthread_join( sniffer_thread , NULL);
-		puts("Handler assigned");
 
+
+		//se ainda tivermos possibilidade de conectarmo-nos xom alguém
+		if( (sockClient==0) || (sockFuse==0) ){
+			puts("Connection accepted");
+			
+			pthread_t sniffer_thread;
+			new_sock = malloc(1);
+			*new_sock = client_sock;
+			
+			if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0){
+				perror("could not create thread");
+				return 1;
+			}
+			
+			//Now join the thread , so that we dont terminate before the thread
+			//pthread_join( sniffer_thread , NULL);
+			puts("Handler assigned");
+		}
 
 	}
 	
@@ -205,6 +209,8 @@ void *connection_handler(void *socket_desc){
 
 		//TODO: ver se não faz mais sentido ter um handler especifico para cada tipo de cliente
 
+		//TODO: adicionar mensagem de erro para quem se tentar juntar quando já tem alguém no socket
+
 		if((strcmp(client_message,"fuse") == 0) && (sockFuse == 0)){
 			printf("received a fuse message with no fuse set, assuming it's the fuse client\n");
 			sockFuse = client_sock;
@@ -226,6 +232,18 @@ void *connection_handler(void *socket_desc){
 		//para serem transmitidas ao cliente
 		//são erros que podem ocorrer durante o processo de modo a avisar ao cliente que algo correu mal
 		// tempoEsgotado ; codigoIncorreto ; erroEmail
+
+		//será pouco mais que escrever para o cliente qual a mensagem de erro
+
+		if((strcmp(client_message,"tempoEsgotado") == 0) && (client_sock == sockFuse)){
+
+		}
+		if((strcmp(client_message,"codigoIncorreto") == 0) && (client_sock == sockFuse)){
+			
+		}
+		if((strcmp(client_message,"erroEmail") == 0) && (client_sock == sockFuse)){
+			
+		}
 
 		//TODO:definir depois
 
@@ -262,6 +280,10 @@ void *connection_handler(void *socket_desc){
 		
 	//Free the socket pointer
 	free(socket_desc);
+
+	//libertar o socket nas variáveis globais
+	if(client_sock == sockClient){ sockClient = 0;	}
+	if(client_sock == sockFuse) { sockFuse = 0; }
 	
 	return 0;
 }
