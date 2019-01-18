@@ -123,7 +123,7 @@ static int xmp_readlink(const char *path, char *buf, size_t size)
 {
 	int res;
 
-	printf("readlink\n");
+	//printf("readlink\n");
 
 	res = readlink(path, buf, size - 1);
 	if (res == -1)
@@ -367,7 +367,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	int randomCodeGenerated = genMultRandom();
 
-	printf("generated code:%d\n",randomCodeGenerated);
+	printf("   generated code:%d\n",randomCodeGenerated);
 
 	int size = 1000;
 

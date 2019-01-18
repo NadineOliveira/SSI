@@ -18,7 +18,7 @@ int genMultRandom(void){
   }
   int j = rand()%5;
 
-  printf("generated code: %d\n",rgn[j]);
+  //printf("generated code: %d\n",rgn[j]);
 
   //printf("code of sequence chosen: %d, in pos %d of above list.\n",rgn[j],j+1);
   return rgn[j];
