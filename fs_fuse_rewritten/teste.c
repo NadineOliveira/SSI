@@ -853,6 +853,8 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
+  int size = 1000;
+  char* username = (char*)malloc(sizeof(char)*size);
 
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
@@ -860,6 +862,9 @@ int main(int argc, char *argv[])
   //assume que a base de dados está na mesma diretoria que este ficheiro
   strcat(absolutePathToDb,"/contact_storage");
 	
+  //carregar os utilizadores 
+  carregaDB();
+
 
   //TODO: bloquear até ter utilizador válido
   //i.e., não permitir montar o sistema até ser alguém que esteja na lsita de contactos
@@ -867,6 +872,22 @@ int main(int argc, char *argv[])
   //se não for podemos permitir a montagem e impedir o open sem demasiados problemas
 
 
-	umask(0);
-	return fuse_main(argc, argv, &xmp_oper, NULL);
+  //pedir utilizador 
+  getline("Adicione o seu nome de utilizador",username,size);
+
+  //verificar se existe na base de dados
+  for(int z = 0;z < totalClientesBD;z++){
+    if( strcpm(clientes[z].nome,username) == 0 ){ clienteAtual = z; break;} 
+  }
+  if(clienteAtual == -1){ 
+    //não encontramos o nosso cliente
+  	 printf("O seu nome não consta da nossa base de ados de contactos, portanto não pode avançar\n");
+     return 0;
+  }else{
+    //corremos o fuse
+
+    umask(0);
+    return fuse_main(argc, argv, &xmp_oper, NULL);
+  }
+
 }
