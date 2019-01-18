@@ -80,14 +80,15 @@ int randomCodeTest = -1;
 char emailFromUser[10000];
 
 
+//funções auxiliares
 
+//client_example.c
 
 #define WAIT 5
 #define OK       0
 #define NO_INPUT 1
 #define TOO_LONG 2
 
-//funções auxiliares
 static int getLine (char *prmpt, char *buff, size_t sz) {
     int ch, extra;
 
@@ -112,6 +113,58 @@ static int getLine (char *prmpt, char *buff, size_t sz) {
     buff[strlen(buff)-1] = '\0';
     return OK;
 }
+
+
+//server_example.c
+
+
+struct cliente
+{
+	char* nome;
+	char* email;
+}*CLI;
+
+struct cliente *clientes;
+
+int totalClientesBD = -1;
+int clienteAtual = -1;
+
+
+void carregaDB(){
+	FILE *fp;
+	char * line = NULL;
+  size_t len = 0;
+  ssize_t read;
+  char* nome;
+  char* email;
+  int N=10;
+	//caminho para a base de dados
+	//assume que está em contact_storage na mesma pasta que este ficheiro
+  fp = fopen("./contact_storage", "r");
+  if (fp == NULL){
+  	printf("erro\n");
+      exit(EXIT_FAILURE);
+  }
+  int i=0;
+  while ((read = getline(&line, &len, fp)) != -1) {
+      //printf("Retrieved line of length %zu:\n", read);
+      //printf("%s", line);
+      if(i==N) N=N*2;
+      clientes = (struct cliente*)malloc(N*sizeof(struct cliente));
+      nome = strtok(line,";");
+      clientes[i].nome = malloc(sizeof(char)*(strlen(nome)));
+      strcpy(clientes[i].nome,nome);
+      nome = strtok(NULL,";");
+      clientes[i].email = malloc(sizeof(char)*(strlen(nome)));
+      strcpy(clientes[i].email,nome);
+      i++;
+  }
+	totalClientesBD = i;
+  fclose(fp);
+  if (line)
+      free(line);
+}
+
 
 
 
@@ -480,6 +533,8 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
 
+    printf("acabou o tempo, open cancelado\n");
+
 		randomCodeTest = -1;
 		return -errno;
 
@@ -802,7 +857,11 @@ int main(int argc, char *argv[])
 
 	getcwd(absolutePathToDb,FILENAME_MAX);
 	printf("Current directory:%s\n",absolutePathToDb);
+
+  //assume que a base de dados está na mesma diretoria que este ficheiro
+  strcat(absolutePathToDb,"/contact_storage");
 	
+
   //TODO: bloquear até ter utilizador válido
   //i.e., não permitir montar o sistema até ser alguém que esteja na lsita de contactos
   //eu não sei se é isto que ele queria, mas por enquanto vamos assumor que sim
