@@ -379,52 +379,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
 	
-	//se for verdade podemos concluir que ainda temos de pedir pelo código
-	//do utilizador para poder aceder
-	//para tal temos de fazer uma quabtas coisas:
 
-	//0- obter o nome do utilizador
-	//NOTA: o utilizador já deve ter sido confirmado
-	//como existente na base de dados pelo servidor
-	//acima que está a lidar com os pedidos do cliente
-	//este passo provavelmente será feito pelo servidor
-	//a contactar com o sistema de ficheiros
-
-	//1-obter o email do utilizador de alguma forma
-	//assumo que vai passar por colocar o email do
-	//utilizador atual num ficheiro à parte e ler 
-	//aqui o valor nesse ficheiro
-
-	//2- mandar o código gerado para dito email e começar a espera
-	
-	//3- obter o código do utilizador
-	//para fazermos isto provavelmente será de modo semelhante a obter o email
-
-	//4- abrir se o código estiver correto, dar erro caso contrário
-	
-
-	//NOTA: depois de escrever o acima lembrei-me que
-	//o nosso servidor pode servir vários clientes
-	//uma maneira de lidar-mos com isto seria colocar isto
-	//como cliente do servidor e indo passando parametros
-	//dessa maneira
-
-
-
-
-
-	//ok
-	//isto vamos ter de ter cuidado por uma razão espeficica:
-	//abrir um ficheiro é, pelo que entendo, chamado em 3 situações:
-	//quando se abre para leitura,escrita e para execução
-	//ora o problema é que quando se abre um ficheiro num editor de texto
-	//por exemplo, o nano,
-	//ele faz open 2 vezes porque precisa tanto de ler como de escrever no ficheiro
-	// isto significa que esta função é chamada 2 vezes
-	//o problema deve tornar-se extremamente obvio sabendo isto
-
-	// pelo menos parece que o código é o mesmo para um ficheiro
-	//tenho que ver como isso funciona
 
 	if(randomCodeTest != randomCodeGenerated){
 		int size = 1000,read_size;
