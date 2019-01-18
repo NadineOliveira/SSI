@@ -10,7 +10,6 @@
 */
 #define FUSE_USE_VERSION 31
 
-//#include "/home/nadine/Transferências/libfuse-master/include/fuse.h"
 #include<fuse.h>
 
 #include<stdio.h>	//printf
@@ -22,10 +21,10 @@
 #include <errno.h>
 
 #define WAIT 5
+#define WAIT 5
 #define OK       0
 #define NO_INPUT 1
 #define TOO_LONG 2
-
 
 static int getLine (char *prmpt, char *buff, size_t sz) {
     int ch, extra;
@@ -52,23 +51,6 @@ static int getLine (char *prmpt, char *buff, size_t sz) {
     return OK;
 }
 
-
-
-/*
-int tempo=0;
-
-int flag=0;
-
-void handler(){
-	alarm(1);
-	tempo++;
-	if(tempo==5)
-		flag=1;
-} 
-*/
-
-
-
 int main(int argc , char *argv[]){
 	int sock;
 	struct sockaddr_in server;
@@ -79,24 +61,24 @@ int main(int argc , char *argv[]){
 
 	int res;
 	
-  char codigo[5] = {0} ; // in case of single character input
-  fd_set input_set;
-  struct timeval timeout;
-  int ready_for_reading = 0;
-  int read_bytes = 0;
+    char codigo[5] = {0} ; // in case of single character input
+    fd_set input_set;
+    struct timeval timeout;
+    int ready_for_reading = 0;
+    int read_bytes = 0;
 
-  /* Empty the FD Set */
-  FD_ZERO(&input_set );
-  /* Listen to the input descriptor */
-  FD_SET(0, &input_set);
+    /* Empty the FD Set */
+    FD_ZERO(&input_set );
+    /* Listen to the input descriptor */
+    FD_SET(0, &input_set);
 
-  /* Waiting for some seconds */
-  timeout.tv_sec = WAIT;    // WAIT seconds
-  timeout.tv_usec = 0;    // 0 milliseconds
+    /* Waiting for some seconds */
+    timeout.tv_sec = WAIT;    // WAIT seconds
+    timeout.tv_usec = 0;    // 0 milliseconds
 
-  /* Invitation for the user to write something */
+    /* Invitation for the user to write something */
 
-  printf("Enter code: (in %d seconds)\n", WAIT);
+    printf("Enter code: (in %d seconds)\n", WAIT);
 
 
 	
@@ -127,20 +109,19 @@ int main(int argc , char *argv[]){
 	
 	int read_size;
 	//keep communicating with server
+	//printf("Introduza o nome de cliente: \n");
 	getLine ("Introduza o nome de cliente> ", buff, sizeof(buff));
-	printf("%s\n",buff);
 	write(sock , buff , strlen(buff));
 	getLine ("Introduza a diretoria do ficheiro> ", buff, sizeof(buff));
-	printf("%s\n",buff);
 	write(sock , buff , strlen(buff));
 	while(1){
 
 	    //while(1){
 	    	/* Listening for input stream for any activity */
-				printf("Introduza o codigo enviado: \n");
+			printf("Introduza o codigo enviado: \n");
 	    	ready_for_reading = select(1, &input_set, NULL, NULL, &timeout);
 			
-				if (ready_for_reading == -1) {
+			if (ready_for_reading == -1) {
 		        /* Some error has occured in input */
 		        printf("Unable to read your input\n");
 		        return -1;
@@ -153,11 +134,12 @@ int main(int argc , char *argv[]){
 		        }
 		        if(read_bytes!=0){
 		            printf("Read, %d bytes from input : %s \n", read_bytes, codigo);
-								write(sock , dir , strlen(message));
-								break;
-						}
+					write(sock , codigo , strlen(codigo));
+					break;
+				}
 				
-		    }else{
+		    }
+		    else{
 		       	printf(" %d Seconds are over - no data input \n", WAIT); 
 		       	break;	
 		    }

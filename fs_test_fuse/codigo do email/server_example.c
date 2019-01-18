@@ -16,14 +16,13 @@
 #include<unistd.h>	//write
 #include<pthread.h> //for threading , link with lpthread
 #include"sCalls.c"
-#include"readFromFile.c"
-#include"genRandomCode.c"
-#include"sendEmail.c"
+#include"servidor/readFromFile.c"
+#include"servidor/genRandomCode.c"
+#include"servidor/sendEmail.c"
 
 
 //the thread function
 void *connection_handler(void *);
-
 
 struct cliente
 {
@@ -73,7 +72,6 @@ int main(int argc , char *argv[]){
 	struct sockaddr_in server , client;
 	char client_message[2000];
 	carregaDB();
-	
 	//Create socket
 	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 	if (socket_desc == -1){
@@ -98,14 +96,13 @@ int main(int argc , char *argv[]){
 	listen(socket_desc , 3);
 	
 	//Accept and incoming connection
-	//puts("Waiting for incoming connections...");
-	//c = sizeof(struct sockaddr_in);
-	
+	puts("Waiting for incoming connections...");
+	c = sizeof(struct sockaddr_in);
 	//accept connection from an incoming client
 	puts("Waiting for incoming connections...");
 	c = sizeof(struct sockaddr_in);
 	while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
-		puts("Connection accepted");
+		puts("Connection acceptedc");
 		
 		pthread_t sniffer_thread;
 		new_sock = malloc(1);
@@ -119,14 +116,11 @@ int main(int argc , char *argv[]){
 		//Now join the thread , so that we dont terminate before the thread
 		//pthread_join( sniffer_thread , NULL);
 		puts("Handler assigned");
-		printf("%s\n",client_message);
-		strcpy(client_message,"");
-		printf("%s\n",client_message);
 
 		while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
-			printf("Nova mensagem\n");
+			printf("NOva mensagem\n");
 			//Send the message back to client_messaget
-			printf("%s;;;;%d\n", client_message,read_size);
+			printf("%s\n", client_message);
 		}
 	}
 	
@@ -135,18 +129,6 @@ int main(int argc , char *argv[]){
 		perror("accept failed");
 		return 1;
 	}
-
-
-
-	char* dir = "Introduza a diretoria do ficheiro: ";
-	write(client_sock , dir , strlen(dir));
-	int l;
-	char* cod=NULL;
-	char* file=NULL;
-	struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
-
-
-
 
 	//coisas a fazer depois da diretoria ter sido chamada:
 	//1-gerar o código(através de genMultRandom() de getRandomCode.c)
@@ -162,6 +144,8 @@ int main(int argc , char *argv[]){
 	//nota: no produto final devemos decidir onde vai estar
 	//mas por agora estará em contact_storage
 	char* databaseForUsersEmails = "./contact_storage";
+
+	
 
 	//utilizador atual
 	//nota: provavelmente vamos requirir que ele coloque o seu nome
@@ -194,33 +178,6 @@ int main(int argc , char *argv[]){
 
 	//Receive a message from client
 
-	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 ){
-
-		//Send the message back to client_messaget
-		printf("%s\n", client_message);
-		dir = "Introduza o codigo enviado: ";
-		
-		if(cod==NULL)
-			cod = strdup(client_message);
-		else
-			file = strdup(client_message);
-
-		printf("enviou cliente\n");
-		write(client_sock , dir , strlen(dir));
-		
-		if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,cod); }
-		
-		//o abaixo é o suposto colocar-mos quando estiver a funcionar
-		//if((cod!=NULL)&&(file!=NULL)){ Myopen(client_message,fi,codigoGerado); }
-
-		
-		write(client_sock , client_message , strlen(client_message));
-		
-		for(l=0;l<read_size * 10;l++){
-			client_message[l] = ' ';
-		}
-	
-	}
 	
 	
 	if(read_size == 0){
