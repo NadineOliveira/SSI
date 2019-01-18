@@ -63,13 +63,15 @@
 
 
 //includes para testar algumas coisas
+//TODO: atualizar isto
+
 #include"genRandomCode.c"
 #include"readFromFile.c"
 #include<unistd.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>	
 #include <signal.h>
-#include"string_to_int.c" //conversão de d«strings para integers
+#include"string_to_int.c" //conversão de strings para integers
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
