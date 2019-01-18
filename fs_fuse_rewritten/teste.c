@@ -484,6 +484,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
 		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
     
+    //informar o cliente que já mandamos o código
     //TODO: no final retirar o código deste print, deve ser obvio porque
 		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
