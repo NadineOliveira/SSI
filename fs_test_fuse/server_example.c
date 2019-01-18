@@ -33,10 +33,12 @@ struct cliente
 
 struct cliente *clientes;
 
+
 //para especificar quem o fuse e quem o cliente
 int sockFuse = 0;
 int sockClient = 0;
-
+int totalClientesBD = 0;
+int clienteAtual = 0;
 
 
 void carregaDB(){
@@ -68,6 +70,7 @@ void carregaDB(){
       strcpy(clientes[i].email,nome);
       i++;
   }
+	totalClientesBD = i;
   fclose(fp);
   if (line)
       free(line);
@@ -226,14 +229,23 @@ void *connection_handler(void *socket_desc){
 
 		//TODO:definir depois
 
+		//TODO: quando dado o nome pesquisar por ele e se não houver match desconectar o cliente
+
+		//char* nome = ...
+
+		// 
 
 
 		//tipos de mensagens especiais dadas pelo cliente fuse
 		//para serem transmitidas ao cliente
 		//são erros que podem ocorrer durante o processo de modo a avisar ao cliente que algo correu mal
 		// tempoEsgotado ; codigoIncorreto ; erroEmail
+		//ou um pedido do email do utilizador: emailToFuse
 
-		//será pouco mais que escrever para o cliente qual a mensagem de erro
+		if((strcmp(client_message,"emailToFuse") == 0) && (client_sock == sockFuse)){
+			write(client_sock,clientes[clienteAtual].email,strlen(clientes[clienteAtual].email));
+		}
+		
 
 		if((strcmp(client_message,"tempoEsgotado") == 0) && (client_sock == sockFuse)){
 			write(
