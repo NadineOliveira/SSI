@@ -474,9 +474,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 			}
 
 
-		//que nos conta o tempo a passar(ou algo semelhante)
-
-
 
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
