@@ -69,11 +69,11 @@
 #include<sys/socket.h>
 #include<arpa/inet.h>	
 #include <signal.h>
-#include"string_to_int" //conversão de d«strings para integers
+#include"string_to_int.c" //conversão de d«strings para integers
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
-int randomCodeTest = 0;
+int randomCodeTest = -1;
 
 //para o servidor
 int sock;
@@ -410,7 +410,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 			//se não a recebermos, então algo correu muito mal
 			//logo abortamos
 			write(sock , "erroEmail" , strlen("erroEmail"));
-			randomCodeTest = 0;
+			randomCodeTest = -1;
 			return -errno;
 		}
 
@@ -418,13 +418,19 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//relativamente simples
 		//ficará comentado até estarmos confiantes que vai funcionar
 		//por razões que devem ser relativamente obvias
+
+	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
 		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
 
+		printf("%s\n%d\n",email,randomCodeGenerated);
 
 		//passo 2.5: iniciar o temporizador aqui
 		//efetivamente ele vai estar à espera até 30 segundos aqui,
 		//retornando erro caso passe mais que isso ou o código
 		//que o cliente meteu esteja errado
+
+
+		//TODO: adicionar o temporizador aqui
 
 		//honestamente não sei como fazer isto,
 		//pesquisar depois
@@ -436,10 +442,10 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 			str2int(codeFromUserConverted,codeFromUser,10);
 			if(codeFromUserConverted == randomCodeGenerated){
 				//o código está certo e podemos continuar
-				//nota: estamos a fazer printf porque se o códigoe stá certo
+				//nota: estamos a fazer printf porque se o códigoe está certo
 				//ele apenas deve abrir o ficheiro como esperado
 				//podemos depois alterar isto se se justificar
-				printf("Code verified, opening your file");
+				printf("Code verified, opening file");
 
 				res = open(path, fi->flags);
 				if (res == -1){ return -errno; }
@@ -466,7 +472,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//e como tal devemos dar erro e avisar o utilizador
 
 		write(sock , "tempoEsgotado" , strlen("tempoEsgotado"));
-		randomCodeTest = 0;
+		randomCodeTest = -1;
 		return -errno;
 
 
