@@ -149,7 +149,7 @@ int main(int argc , char *argv[]){
 
 	
 	//gerar código aleatório
-	char* codigoGerado = genMultRandom();
+	int codigoGerado = genMultRandom();
 
 	//caminho para a base de dados
 	//nota: no produto final devemos decidir onde vai estar

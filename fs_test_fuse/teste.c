@@ -386,7 +386,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//NOTA: o utilizador já deve ter sido confirmado
 	//como existente na base de dados pelo servidor
 	//acima que está a lidar com os pedidos do cliente
-	//este passo provavelmente será feito pelo servidro
+	//este passo provavelmente será feito pelo servidor
 	//a contactar com o sistema de ficheiros
 
 	//1-obter o email do utilizador de alguma forma
@@ -409,9 +409,33 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//dessa maneira
 
 
+
+
+
+	//ok
+	//isto vamos ter de ter cuidado por uma razão espeficica:
+	//abrir um ficheiro é, pelo que entendo, chamado em 3 situações:
+	//quando se abre para leitura,escrita e para execução
+	//ora o problema é que quando se abre um ficheiro num editor de texto
+	//por exemplo, o nano,
+	//ele faz open 2 vezes porque precisa tanto de ler como de escrever no ficheiro
+	// isto significa que esta função é chamada 2 vezes
+	//o problema deve tornar-se extremamente obvio sabendo isto
+
+	// pelo menos parece que o código é o mesmo para um ficheiro
+	//tenho que ver como isso funciona
+
 	if(randomCodeTest != randomCodeGenerated){
+		//neste caso podemos fazer o pedido para tudo da autorização
+		//i.e.: criar o código, enviar por email,
+		//esperar por código de volta e se for o correto executar o open
 		randomCodeTest = randomCodeGenerated;
+
+		//NOTA: no final temos de garantir que se falhar o valor de 
+		//randomCodeTest volta a 0,
+		//de modo a garantir que o else não executa quando não devia
 	}else{
+		//neste caso devemos verificar se
 		printf("---------------------test--------------------\n");
 	}
 
@@ -435,19 +459,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		randomCodeGenerated,pathToDB,target,email,fi->flags,path
 	);
 
-
-	//ok
-	//isto vamos ter de ter cuidado por uma razão espeficica:
-	//abrir um ficheiro é, pelo que entendo, chamado em 3 situações:
-	//quando se abre para leitura,escrita e para execução
-	//ora o problema é que quando se abre um ficheiro num editor de texto
-	//por exemplo, o nano,
-	//ele faz open 2 vezes porque precisa tanto de ler como de escrever no ficheiro
-	// isto significa que esta função é chamada 2 vezes
-	//o problema deve tornar-se extremamente obvio sabendo isto
-
-	// pelo menos parece que o código é o mesmo para um ficheiro
-	//tenho que ver como isso funciona
 	
 	
 
