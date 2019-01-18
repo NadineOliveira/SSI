@@ -128,7 +128,7 @@ int main(int argc , char *argv[]){
 			printf("%s;;;;%d\n", client_message,read_size);
 
 			//limpar a mensagem depois de fazermos com ela o que queremos
-			//memset(client_message, 0, sizeof client_message);
+			memset(client_message, 0, sizeof client_message);
 		}
 	}
 	
