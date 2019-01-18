@@ -145,7 +145,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	(void) fi;
 	(void) flags;
 
-	printf("readdir\n");
+	//printf("readdir\n");
 
 	dp = opendir(path);
 	if (dp == NULL)
@@ -384,6 +384,17 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	char* email = getEmailFromFile(pathToDB,target);
 
 	printf("For user %s we've discovered email %s\n",target,email);
+
+	//ok
+	//isto vamos ter de ter cuidado por uma razão espeficica:
+	//abrir um ficheiro é, pelo que entendo, chamado em 3 situações:
+	//quando se abre para leitura,escrita e para execução
+	//ora o problema é que quando se abre um ficheiro num editor de texto
+	//por exemplo, o nano,
+	//ele faz open 2 vezes porque precisa tanto de ler como de escrever no ficheiro
+	// isto significa que esta função é chamada 2 vezes
+	//o problema deve tornar-se extremamente obvio sabendo isto
+	
 
 	res = open(path, fi->flags);
 	if (res == -1)
