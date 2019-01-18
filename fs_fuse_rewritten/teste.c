@@ -77,7 +77,6 @@
 char absolutePathToDb[FILENAME_MAX];
 int randomCodeTest = -1;
 
-char emailFromUser[10000];
 
 
 //funções auxiliares
@@ -486,7 +485,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
     
     //TODO: no final retirar o código deste print, deve ser obvio porque
-		printf("Código enviado para%s\n%d\n",emailFromUser,randomCodeGenerated);
+		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
 
 
@@ -885,7 +884,6 @@ int main(int argc, char *argv[])
      return 0;
   }else{
     //corremos o fuse
-
     umask(0);
     return fuse_main(argc, argv, &xmp_oper, NULL);
   }
