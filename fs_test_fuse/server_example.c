@@ -203,6 +203,8 @@ void *connection_handler(void *socket_desc){
 		//identificar o tipo de cliente
 		//e atribuir valores especiais
 
+		//TODO: ver se não faz mais sentido ter um handler especifico para cada tipo de cliente
+
 		if((strcmp(client_message,"fuse") == 0) && (sockFuse == 0)){
 			printf("received a fuse message with no fuse set, assuming it's the fuse client\n");
 			sockFuse = client_sock;
@@ -216,7 +218,7 @@ void *connection_handler(void *socket_desc){
 		//deverão ser a mensagem com o nome de utilizador
 		// e com o código que lhe foi pedido
 
-		//tODO:definir depois
+		//TODO:definir depois
 
 
 
