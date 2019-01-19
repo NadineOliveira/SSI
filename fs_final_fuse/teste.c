@@ -494,7 +494,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
 
-	printf("%s\n",randomCodeTest);
+	printf("%d\n",randomCodeTest);
 
 	if(randomCodeTest != randomCodeGenerated){
 
@@ -502,13 +502,13 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
-	char cod[50];
-	sprintf(cod,"%d",randomCodeGenerated);
-	sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod);
+		char cod[50];
+		sprintf(cod,"%d",randomCodeGenerated);
+		sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod);
     
     //informar o cliente que já mandamos o código
     //TODO: no final retirar o código deste print, deve ser obvio porque
-		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
+		printf("Código enviado para %s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
 
 		printf("Introduza o código:(tem 30 segundos)");
