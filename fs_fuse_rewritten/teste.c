@@ -72,6 +72,10 @@
 #include"string_to_int.c" //conversão de strings para integers 
 #include <pthread.h>
 
+
+
+#define SIZE 1000
+
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
 int randomCodeTest = -1;
@@ -79,12 +83,10 @@ int codeFromClient = -1;
 int client_sock = -1;
 
 
-int temporizador = -1; // temporizador
-int verificado = -1; //a alterar se o código for verificado
+int timeout = 0; // a mensagem de timeout ocorreu
+int verificado = 0; //a alterar se o código for verificado
 
-
-#define SIZE 1000
-
+int codigoRecebido = -1;
 
 
 
@@ -150,7 +152,7 @@ void carregaDB(){
 	//assume que está em contact_storage na mesma pasta que este ficheiro
   fp = fopen("./contact_storage", "r");
   if (fp == NULL){
-  	printf("erro\n");
+  	printf("erro na abertura do ficheiro de contactos\n");
       exit(EXIT_FAILURE);
   }
   int i=0;
@@ -220,7 +222,7 @@ static int xmp_access(const char *path, int mask)
 {
 	int res;
 
-	printf("access\n");
+	//printf("access\n");
 
 	res = access(path, mask);
 	if (res == -1)
@@ -279,7 +281,7 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 	int res;
 
 
-	printf("mknod\n");
+	//printf("mknod\n");
 
 	/* On Linux this could just be 'mknod(path, mode, rdev)' but this
 	   is more portable */
@@ -302,7 +304,7 @@ static int xmp_mkdir(const char *path, mode_t mode)
 	int res;
 
 
-	printf("mkdir\n");
+	//printf("mkdir\n");
 
 	res = mkdir(path, mode);
 	if (res == -1)
@@ -316,7 +318,7 @@ static int xmp_unlink(const char *path)
 	int res;
 
 
-	printf("unlink\n");
+	//printf("unlink\n");
 
 	res = unlink(path);
 	if (res == -1)
@@ -330,7 +332,7 @@ static int xmp_rmdir(const char *path)
 	int res;
 
 
-	printf("rmdir\n");
+	//printf("rmdir\n");
 
 	res = rmdir(path);
 	if (res == -1)
@@ -344,7 +346,7 @@ static int xmp_symlink(const char *from, const char *to)
 	int res;
 
 
-	printf("symlink\n");
+	//printf("symlink\n");
 
 	res = symlink(from, to);
 	if (res == -1)
@@ -358,7 +360,7 @@ static int xmp_rename(const char *from, const char *to, unsigned int flags)
 	int res;
 
 
-	printf("rename\n");
+	//printf("rename\n");
 
 	if (flags)
 		return -EINVAL;
@@ -375,7 +377,7 @@ static int xmp_link(const char *from, const char *to)
 	int res;
 
 
-	printf("link\n");
+	//printf("link\n");
 
 	res = link(from, to);
 	if (res == -1)
@@ -391,7 +393,7 @@ static int xmp_chmod(const char *path, mode_t mode,
 	int res;
 
 
-	printf("chmod\n");
+	//printf("chmod\n");
 
 	res = chmod(path, mode);
 	if (res == -1)
@@ -407,7 +409,7 @@ static int xmp_chown(const char *path, uid_t uid, gid_t gid,
 	int res;
 
 
-	printf("chown\n");
+	//printf("chown\n");
 
 	res = lchown(path, uid, gid);
 	if (res == -1)
@@ -422,7 +424,7 @@ static int xmp_truncate(const char *path, off_t size,
 	int res;
 
 
-	printf("truncate\n");
+	//printf("truncate\n");
 
 	if (fi != NULL)
 		res = ftruncate(fi->fh, size);
@@ -442,7 +444,7 @@ static int xmp_utimens(const char *path, const struct timespec ts[2],
 	int res;
 
 
-	printf("utimens\n");
+	//printf("utimens\n");
 
 	/* don't use utime/utimes since they follow symlinks */
 	res = utimensat(0, path, ts, AT_SYMLINK_NOFOLLOW);
@@ -459,7 +461,7 @@ static int xmp_create(const char *path, mode_t mode,
 	int res;
 
 
-	printf("create\n");
+	//printf("create\n");
 
 	res = open(path, fi->flags, mode);
 	if (res == -1)
@@ -495,8 +497,9 @@ void *threadproc(void *arg){
 static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	int res;
+	int read_size;
 
-	printf("open\n");
+	//printf("open\n");
 
 
 	//gerar código aleatório
@@ -506,15 +509,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		verificado = -1;
 
 		randomCodeTest = randomCodeGenerated;
-
-		//NOTA: no final temos de garantir que se falhar o valor de 
-		//randomCodeTest volta a -1, de modo a garantir que o else não executa quando não devia
-
-		//passo 1: aceder ao email do utilizador atual
-    //variavel global clientes[clienteAtual].email
-
-
-		//passo 2: mandar código para o email que obtivemos
 
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
 		//sendMailToSomeoneWithACode(clientes[clienteAtual].email,randomCodeGenerated);
@@ -526,35 +520,33 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
 		//temporizador e verificador de código de cliente
-		char client_message[2000];
 		write(client_sock,"Insira o codigo tem 30 segundos:",strlen("Insira o codigo tem 30 segundos:"));
 
-		while( recv(client_sock , client_message , 2000 , 0) > 0){
-			puts(client_message);
-			printf("recebemos o código\n");
-			if(strstr(client_message,"timeout")==NULL)
-				codeFromClient = atoi(client_message);
-			break;
-		}
+		while( timeout != 1  ){
+			if(codigoRecebido != -1){
+				printf("recebemos o código%d\n",codeFromClient);
 
-		if(codeFromClient == randomCodeGenerated){
-			write(
-				client_sock,
-				"validadoCodigo",
-				strlen("validadoCodigo")
-			);
-			verificado = 1;
-			res = open(path, fi->flags);
-			if (res == -1){ return -errno; }
-			fi->fh = res;
-			return 0;
-		}else if(codeFromClient != -1){
-			write(
-				client_sock,
-				"erradoCodigo",
-				strlen("erradoCodigo")
-			);
-			codeFromClient = -1;
+				if(codeFromClient == randomCodeGenerated){
+					write(
+						client_sock,
+						"validadoCodigo",
+						strlen("validadoCodigo")
+					);
+					verificado = 1;
+					res = open(path, fi->flags);
+					if (res == -1){ return -errno; }
+					fi->fh = res;
+					return 0;
+				}else{
+					write(
+						client_sock,
+						"erradoCodigo",
+						strlen("erradoCodigo")
+					);
+					codeFromClient = -1;
+					codigoRecebido = -1;
+				}
+			}
 
 
 		}
@@ -563,7 +555,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//e como tal devemos dar erro e avisar o utilizador
 
     write(client_sock,"tempoEsgotado",strlen("tempoEsgotado"));
-
+		timeout = 0;
 		randomCodeTest = -1;
 		return -errno;
 
@@ -593,7 +585,7 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 	int res;
 
 
-	printf("read\n");
+	//printf("read\n");
 
 	if(fi == NULL)
 		fd = open(path, O_RDONLY);
@@ -619,7 +611,7 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 	int res;
 
 
-	printf("write\n");
+	//printf("write\n");
 
 	(void) fi;
 	if(fi == NULL)
@@ -644,7 +636,7 @@ static int xmp_statfs(const char *path, struct statvfs *stbuf)
 	int res;
 
 
-	printf("statfs\n");
+	//printf("statfs\n");
 
 	res = statvfs(path, stbuf);
 	if (res == -1)
@@ -656,7 +648,7 @@ static int xmp_statfs(const char *path, struct statvfs *stbuf)
 static int xmp_release(const char *path, struct fuse_file_info *fi)
 {
 
-	printf("release\n");
+	//printf("release\n");
 
 	(void) path;
 	close(fi->fh);
@@ -668,7 +660,7 @@ static int xmp_fsync(const char *path, int isdatasync,
 {
 
 
-	printf("fsynch\n");
+	//printf("fsynch\n");
 
 
 	/* Just a stub.	 This method is optional and can safely be left
@@ -690,7 +682,7 @@ static int xmp_fallocate(const char *path, int mode,
 	(void) fi;
 
 
-	printf("fallocate\n");
+	//printf("fallocate\n");
 
 	if (mode)
 		return -EOPNOTSUPP;
@@ -719,7 +711,7 @@ static int xmp_setxattr(const char *path, const char *name, const char *value,
 	int res = lsetxattr(path, name, value, size, flags);
 
 
-	printf("setxattr\n");
+	//printf("setxattr\n");
 
 	if (res == -1)
 		return -errno;
@@ -732,7 +724,7 @@ static int xmp_getxattr(const char *path, const char *name, char *value,
 	int res = lgetxattr(path, name, value, size);
 
 
-	printf("getxattr\n");
+	//printf("getxattr\n");
 
 	if (res == -1)
 		return -errno;
@@ -743,7 +735,7 @@ static int xmp_listxattr(const char *path, char *list, size_t size)
 {
 	int res = llistxattr(path, list, size);
 
-	printf("listxattr\n");
+	//printf("listxattr\n");
 
 	if (res == -1)
 		return -errno;
@@ -755,7 +747,7 @@ static int xmp_removexattr(const char *path, const char *name)
 	int res = lremovexattr(path, name);
 
 
-	printf("removexattr\n");
+	//printf("removexattr\n");
 
 	if (res == -1)
 		return -errno;
@@ -774,7 +766,7 @@ static ssize_t xmp_copy_file_range(const char *path_in,
 	ssize_t res;
 
 
-	printf("copy_file_range\n");
+	//printf("copy_file_range\n");
 
 	if(fi_in == NULL)
 		fd_in = open(path_in, O_RDONLY);
@@ -858,13 +850,17 @@ void *connection_handler(void *socket_desc){
 	
 	//Receive a message from client
 	while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 ){
-		//como a única mensagem deve ser o código, convertemos
-		//para inteiro a mensagem e colocamos numa variável global
-
-		int codeFromUserConverted;
-		str2int(&codeFromUserConverted,client_message,10);
-		codeFromClient = codeFromUserConverted;
-		
+		printf("receive a message from client:%s\n",client_message);		
+		if(strcmp(client_message,"timeout") == 0){
+			//mensagem de timeout
+			timeout = 1;
+		}else{
+			// código
+			int codigoConvertido;
+			str2int(&codigoConvertido,client_message,strlen(client_message));
+			codeFromClient = codigoConvertido;
+			codigoRecebido = 1;
+		}
 	}
 	
 	if(read_size == 0){
@@ -888,12 +884,9 @@ int main(int argc, char *argv[]){
   char* username = (char*)malloc(sizeof(char)*SIZE);
 
 	getcwd(absolutePathToDb,FILENAME_MAX);
-	printf("Current directory:%s\n",absolutePathToDb);
 
   //carregar os utilizadores 
   carregaDB();
-
-
 
 	int socket_desc , c , *new_sock;
 	struct sockaddr_in server , client;
@@ -902,7 +895,6 @@ int main(int argc, char *argv[]){
 	if (socket_desc == -1){
 		printf("Could not create socket");
 	}
-	puts("Socket created");
 
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
@@ -913,7 +905,6 @@ int main(int argc, char *argv[]){
 		perror("bind failed. Error");
 		return 1;
 	}
-	puts("bind done");
 
 	listen(socket_desc , 3);
 
@@ -935,7 +926,6 @@ int main(int argc, char *argv[]){
 	
 	//Now join the thread , so that we dont terminate before the thread
 	//pthread_join( sniffer_thread , NULL);
-	puts("Handler assigned");
 
 
 	printf("\n\nNOTA:a consola na nova pasta não vai diretamente para a diretoria que vai ser montada\n");
@@ -954,7 +944,6 @@ int main(int argc, char *argv[]){
 	//verificar a existência do utilizador
 
 	for(int z = 0;z < totalClientesBD;z++){
-		printf("%s\n",clientes[z].nome);
   	if( strcmp(clientes[z].nome,username) == 0 ){ 
 			clienteAtual = z; break;
 		} 
@@ -992,13 +981,8 @@ int main(int argc, char *argv[]){
 	printf("se tiver algum problema entretanto poderá chamar 'make help' para obter informação de alguns problemas que podem ocorrer\n");
 
 
-
-	//fechar o servidor, temporário
-	//close(socket_desc);
-
-
+	//iniciar fuse
   umask(0);
   return fuse_main(argc, argv, &xmp_oper, NULL);
-
 
 }
