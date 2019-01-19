@@ -79,26 +79,6 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend,char* pathToFolder)
   //strcat(cc,">");
 
 
-  //retirar o \n do fim
-  if( destinatario[strlen(destinatario)-1] == '\n'){
-     destinatario[strlen(destinatario)-1] = '\0';
-  }
-  if(destinatario[strlen(destinatario)-2] == ' '){
-    destinatario[strlen(destinatario)-2] = '\0';
-  }
-  
-
-  if( target[strlen(target)-1] == '\n'){
-     target[strlen(target)-1] = '\0';
-  }
-  if(target[strlen(target)-2] == ' '){
-    target[strlen(target)-2] = '\0';
-  }
-
-  printf("-------------------------------------------\n");
-  printf("%s\n",destinatario);
-  printf("%s\n",target);
-  printf("-------------------------------------------\n");
 
 
   //criar mensagem
