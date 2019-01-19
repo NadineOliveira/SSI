@@ -486,6 +486,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 		randomCodeTest = randomCodeGenerated;
 
+
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
 		//sendMailToSomeoneWithACode(clientes[clienteAtual].email,randomCodeGenerated);
     
@@ -496,9 +497,9 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 		printf("Introduza o código:(tem 30 segundos)");
 		
-		int i = 0;
 		int codigoColocado = -1; 
 
+		flag = 0;
 		signal(SIGALRM,handler);
 		alarm(1);
 
@@ -825,7 +826,7 @@ static struct fuse_operations xmp_oper = {
 
 
 int main(int argc, char *argv[]){
-  char* username = (char*)malloc(sizeof(char)*SIZE);
+  char username[SIZE] ;
 
 	getcwd(absolutePathToDb,FILENAME_MAX);
 
@@ -843,8 +844,6 @@ int main(int argc, char *argv[]){
 
 	scanf("%s",username);
 
-	printf("%s\n",username);
-
 
 
 	//verificar a existência do utilizador
@@ -859,6 +858,7 @@ int main(int argc, char *argv[]){
 		printf("nome não encontrado\n");
 		return 0;
 	}
+
 
 	printf("sempre que abrir o open um ecra será criado para colocar o código\n");
 	printf("se ele sair do ecra antes dos 30 segundos passarem então teve sucesso no open\n");
