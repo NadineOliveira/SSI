@@ -460,7 +460,7 @@ void handler(){
 	}else{
 		if(tempo<=30){
 			tempo++;
-			if(tempo%5 == 0){
+			if(tempo%10 == 0){
 				printf("Passaram: %d segundos\n", tempo);
 			}
 			if(tempo==30){
