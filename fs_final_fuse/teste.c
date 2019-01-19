@@ -501,14 +501,14 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	sprintf(cod,"%d",randomCodeGenerated);
 	char* ptr;
 	if( (ptr = strchr(clientes[clienteAtual].email, '\n')) != NULL){
-		printf("entoru\n");
   		*ptr = '\0';
 	}
 	printf("%s\n", clientes[clienteAtual].email);
 	sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod,absolutePathToDb);
   
   //informar o cliente que já mandamos o código
-	printf("Código enviado para %s\n",clientes[clienteAtual].email);
+  //TODO: no final retirar o código deste print, deve ser obvio porque
+	printf("Código enviado para %s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
 
 	printf("Introduza o código:(tem 30 segundos)");
@@ -527,7 +527,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		}else{
 			while ( (scanf("%d", &codigoColocado) != 1) && (flag!=1)) {
 					clear_stream(stdin);
-					printf("Valor não inteiro colcoado, tente de novo\n ");
+					printf("Invalid integer. Please try again: ");
 					fflush(stdout);
 			}
 			if(flag == 1){
@@ -857,12 +857,8 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
-
-	printf("sempre que abrir o open um ecra será criado para colocar o código\n");
-	printf("se ele sair do ecra antes dos 30 segundos passarem então teve sucesso no open\n");
-	printf("ele automaticamente sai depois de 30 segundos(e o open falhou)\n\n");
-
-	printf("poderá utilizar o cd ./teste para entrar no sistema de ficheiros após este ecra desaparecer\n");
+	printf("após o program ser executado, um novo ercã é criado na diretoria ~/Desktop\n");
+	printf("terá que executar o cd ./teste para entrar no sistema de ficheiros neste ecra\n");
 	printf("pode utilizar como se fosse o sistema normal, com a excepção da operação open\n");
 	printf("apenas a operação open requer código de autorização\n");
 	printf("este código será distribuido pelo contacto de email que está definido em contact_storage\n");
