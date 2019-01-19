@@ -494,23 +494,13 @@ void *threadproc(void *arg){
 
 static int xmp_open(const char *path, struct fuse_file_info *fi){
 
-	printf("open\n");
-
 	int res;
 
-
-	res = open(path, fi->flags);
-	if (res == -1){ return -errno; }
-	fi->fh = res;
-	return 0;
-
-	//TODO:retirar coisas acima quando terminar o teste de mensagem para cliente
+	printf("open\n");
 
 
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
-
-
 
 	if(randomCodeTest != randomCodeGenerated){
 		verificado = -1;
@@ -536,11 +526,12 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
 		//temporizador e verificador de código de cliente
-		char *message , client_message[2000];
+		char client_message[2000];
 		write(client_sock,"Insira o codigo tem 30 segundos:",strlen("Insira o codigo tem 30 segundos:"));
 
 		while( recv(client_sock , client_message , 2000 , 0) > 0){
 			puts(client_message);
+			printf("recebemos o código\n");
 			if(strstr(client_message,"timeout")==NULL)
 				codeFromClient = atoi(client_message);
 			break;
@@ -576,8 +567,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		randomCodeTest = -1;
 		return -errno;
 
-
-
 	}else{
 		//neste caso devemos apenas abrir o ficheiro,
 		//pois se chegamos aqui então é porque o código já foi enviado 
@@ -593,7 +582,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	}
 
-
+	return 0;
 
 }
 
@@ -864,7 +853,7 @@ void *connection_handler(void *socket_desc){
 	//Get the socket descriptor
 	int sock = *(int*)socket_desc;
 	int read_size;
-	char *message , client_message[2000];
+	char client_message[2000];
 	
 	
 	//Receive a message from client
@@ -949,8 +938,9 @@ int main(int argc, char *argv[]){
 	puts("Handler assigned");
 
 
-	printf("\n\nNOTA:a consola na nova pasta só terá capacidade de fazer coisas DEPOIS de introduzir o nome do utilizador\n");
-	printf("Antes de tal, a consola que está lá é inutil\n");
+	printf("\n\nNOTA:a consola na nova pasta não vai diretamente para a diretoria que vai ser montada\n");
+	printf("Isto é porque se fosse seria necessário recarregar a pasta ou sair e voltar a entrar nela\n");
+	printf("Como tal após colocar um utilizadr válido por favor faça cd ./teste para poder entrar no sistema de ficheiros criado\n\n");
 
 
 

@@ -21,7 +21,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#define WAIT 5
+#define WAIT 30
 #define OK       0
 #define NO_INPUT 1
 #define TOO_LONG 2
@@ -133,7 +133,7 @@ int main(int argc , char *argv[]){
 			        return -1;
 			    } 
 			    if(ready_for_reading){
-			        read_bytes = read(0, codigo, 4);
+			        read_bytes = read(0, codigo, 20);
 			        if(codigo[read_bytes-1]=='\n'){
 				        --read_bytes;
 				        codigo[read_bytes]='\0';
@@ -149,7 +149,6 @@ int main(int argc , char *argv[]){
 			    else{
 			       	printf(" %d Seconds are over - no data input \n", WAIT); 
 			       	write(sock,"timeout",strlen("timeout"));
-			       	codigoInserido=1;
 			       	break;	
 			    }
 
