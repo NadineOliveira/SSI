@@ -1,18 +1,18 @@
 #!/bin/bash
 
-function testLibcurl(){
-  ldconfig -p | grep libcurl
-}
+function testLibcurl(){ ldconfig -p | grep libcurl }
 
-function testFuse3(){
-	ldconfig -p | grep fuse3
-}
+function testFuse3(){	ldconfig -p | grep fuse3 }
+
+function testNCurses(){ ldconfig -p | grep ncurses }
 
 curlVal="$(testLibcurl)"
 fuseVal="$(testFuse3)"
+ncusesVal="$(testNCurses)"
 
 curlExists=false
 fuseExists=false
+ncursesExists=false
 
 if [ ! -z "$curlVal" ]
 then
@@ -24,6 +24,11 @@ then
   fuseExists=true
 fi
 
+if [ ! -z "$ncusesVal" ]
+then
+  ncursesExists=true
+fi
+
 echo "---------------------------------------------------------------------------"
 
 if($curlExists)
@@ -32,9 +37,14 @@ then
   if($fuseExists)
   then 
     echo "library fuse3 detected in your computer"
-    echo "starting compilation"
-    gcc -Wall teste.c `pkg-config fuse3 --cflags --libs` -o teste
-    gcc client.c -o client -D_FILE_OFFSET_BITS=64
+    if($ncursesExists)
+    then 
+      echo "library ncurses detected in your computer"
+      echo "starting compilation"
+      gcc -Wall teste.c `pkg-config fuse3 curl ncurses --cflags --libs` -o teste
+    else
+      echo "ncurses not detected in your computer, install it with "
+    fi
   else
     echo "fuse3 not detected in your computer"
     echo "unfortunatly we have no idea how to fix this, and we can't run the program without it"

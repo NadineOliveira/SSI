@@ -4,7 +4,6 @@ run:
 	export LD_LIBRARY_PATH
 	mkdir -p ~/Desktop/teste
 	./criaNovaJanela.sh
-	./inicializaCliente.sh 
 	./teste -s -f ~/Desktop/teste
 
 help:

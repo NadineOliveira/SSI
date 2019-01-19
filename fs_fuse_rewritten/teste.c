@@ -71,6 +71,7 @@
 #include <signal.h>
 #include"string_to_int.c" //conversão de strings para integers 
 #include <pthread.h>
+#include <curses.h>
 
 
 
@@ -78,16 +79,8 @@
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
+
 int randomCodeTest = -1;
-int codeFromClient = -1;
-int client_sock = -1;
-
-
-int timeout = 0; // a mensagem de timeout ocorreu
-int verificado = 0; //a alterar se o código for verificado
-
-int codigoRecebido = -1;
-
 
 
 //funções auxiliares
@@ -497,7 +490,6 @@ void *threadproc(void *arg){
 static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	int res;
-	int read_size;
 
 	//printf("open\n");
 
@@ -506,7 +498,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	int randomCodeGenerated = genMultRandom();
 
 	if(randomCodeTest != randomCodeGenerated){
-		verificado = -1;
 
 		randomCodeTest = randomCodeGenerated;
 
@@ -514,49 +505,74 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//sendMailToSomeoneWithACode(clientes[clienteAtual].email,randomCodeGenerated);
     
     //informar o cliente que já mandamos o código
-		write(client_sock,"codigoEnviado",strlen("codigoEnviado"));
-
     //TODO: no final retirar o código deste print, deve ser obvio porque
 		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
-		//temporizador e verificador de código de cliente
-		write(client_sock,"Insira o codigo tem 30 segundos:",strlen("Insira o codigo tem 30 segundos:"));
 
-		while( timeout != 1  ){
-			if(codigoRecebido != -1){
-				printf("recebemos o código%d\n",codeFromClient);
+		printf("Introduza o código:(tem 30 segundos)");
+		
+		//inicializa ncurses
+		initscr();
+		cbreak();
+		//noecho();
+		
+		char *end;
+		char buf[LINE_MAX];
 
-				if(codeFromClient == randomCodeGenerated){
-					write(
-						client_sock,
-						"validadoCodigo",
-						strlen("validadoCodigo")
-					);
-					verificado = 1;
-					res = open(path, fi->flags);
-					if (res == -1){ return -errno; }
-					fi->fh = res;
-					return 0;
-				}else{
-					write(
-						client_sock,
-						"erradoCodigo",
-						strlen("erradoCodigo")
-					);
-					codeFromClient = -1;
-					codigoRecebido = -1;
-				}
-			}
+		int codigoColocado = -1; 
 
+		int ch;
+ 		nodelay(stdscr, TRUE);
+		for (;;) {
+      if ((ch = getch()) == ERR) {
+          /* user hasn't responded
+           ...
+          */
+      }
+      else {
+          /* user has pressed a key ch
+           ...
+          */
+      }
+ 		}
 
+		do {
+     if (!fgets(buf, sizeof buf, stdin)){ break; }
+
+		 printf("%s\n",buf);
+
+     // remove \n
+     buf[strlen(buf) - 1] = 0;
+
+     codigoColocado = strtol(buf, &end, 10);
+		 printf("%d\n",codigoColocado);
+
+		if(codigoColocado == randomCodeGenerated){
+			printf("codigo correto, continuando com o open");
+			res = open(path, fi->flags);
+			if (res == -1){ return -errno; }
+			fi->fh = res;
+			//terminar ncurses
+			endwin()
+			return 0;
+		}else{
+			printf("codigo errado, tente novamente\n");
+			printf("nota: neste momento ele vai impedir o open porque ainda não colocas-te timeout\n");
 		}
+
+		} while (end != buf + strlen(buf));
+
+
+		
+
+		
 
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
 
-    write(client_sock,"tempoEsgotado",strlen("tempoEsgotado"));
-		timeout = 0;
 		randomCodeTest = -1;
+		//terminar ncurses
+		endwin()
 		return -errno;
 
 	}else{
@@ -564,12 +580,10 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//pois se chegamos aqui então é porque o código já foi enviado 
 		//e verificado com sucesso
 
-		if( verificado!=-1 ){
-			res = open(path, fi->flags);
-			if (res == -1){ return -errno; }
-			fi->fh = res;
-			return 0;	
-		}
+		res = open(path, fi->flags);
+		if (res == -1){ return -errno; }
+		fi->fh = res;
+		return 0;	
 
 
 	}
@@ -840,43 +854,6 @@ static struct fuse_operations xmp_oper = {
 
 
 
-//lida com a comunicação cliente->servidor
-void *connection_handler(void *socket_desc){
-	//Get the socket descriptor
-	int sock = *(int*)socket_desc;
-	int read_size;
-	char client_message[2000];
-	
-	
-	//Receive a message from client
-	while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 ){
-		printf("receive a message from client:%s\n",client_message);		
-		if(strcmp(client_message,"timeout") == 0){
-			//mensagem de timeout
-			timeout = 1;
-		}else{
-			// código
-			int codigoConvertido;
-			str2int(&codigoConvertido,client_message,strlen(client_message));
-			codeFromClient = codigoConvertido;
-			codigoRecebido = 1;
-		}
-	}
-	
-	if(read_size == 0){
-		puts("Client disconnected");
-		fflush(stdout);
-	}else if(read_size == -1){
-		perror("recv failed");
-	}
-		
-	//Free the socket pointer
-	free(socket_desc);
-	
-	return 0;
-}
-
-
 
 
 
@@ -888,50 +865,9 @@ int main(int argc, char *argv[]){
   //carregar os utilizadores 
   carregaDB();
 
-	int socket_desc , c , *new_sock;
-	struct sockaddr_in server , client;
-
-	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-	if (socket_desc == -1){
-		printf("Could not create socket");
-	}
-
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons( 8888 );
-
-	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0){
-		//print the error message
-		perror("bind failed. Error");
-		return 1;
-	}
-
-	listen(socket_desc , 3);
-
-	puts("Waiting for client to start");
-	c = sizeof(struct sockaddr_in);
-
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-
-	puts("Connection accepted");
-		
-	pthread_t sniffer_thread;
-	new_sock = malloc(1);
-	*new_sock = client_sock;
-	
-	if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0){
-		perror("could not create thread");
-		return 1;
-	}
-	
-	//Now join the thread , so that we dont terminate before the thread
-	//pthread_join( sniffer_thread , NULL);
-
-
 	printf("\n\nNOTA:a consola na nova pasta não vai diretamente para a diretoria que vai ser montada\n");
 	printf("Isto é porque se fosse seria necessário recarregar a pasta ou sair e voltar a entrar nela\n");
 	printf("Como tal após colocar um utilizadr válido por favor faça cd ./teste para poder entrar no sistema de ficheiros criado\n\n");
-
 
 
 	//inicializando nome do utilizador
@@ -950,26 +886,10 @@ int main(int argc, char *argv[]){
 	}
 	if(clienteAtual == -1){
 		//cliente não encontrado no base de dados
-		write(
-			client_sock,
-			"O seu utilizador não foi encontrado na base de dados, logo não pode aceder ao sistema de ficheiros\n",
-			strlen("O seu utilizador não foi encontrado na base de dados, logo não pode aceder ao sistema de ficheiros\n")
-		);
-
 		printf("nome não encontrado\n");
-
-		close(socket_desc);
 
 		return 0;
 	}
-
-	//debug
-	printf("cliente conectado\n");
-	write( 
-		client_sock,
-		"servidor reconheceu o nome, iniciando serviço\n",
-		strlen("servidor reconheceu o nome, iniciando serviço\n")
-	);
 
 	printf("deverá ser redirecionado para a diretoria de entrada do sistema de ficheiros criado\n");
 	printf("pode utilizar como se fosse o sistema normal, com a excepção da operação open\n");
