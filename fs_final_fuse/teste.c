@@ -75,6 +75,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 
 #define SIZE 1000
@@ -457,6 +458,19 @@ void handler(){
 	if(tempo==30)
 		flag=1;
 } 
+
+void clear_stream(FILE *in)
+{
+    int ch;
+    
+    clearerr(in);
+    
+    do
+        ch = getc(in);
+    while (ch != '\n' && ch != EOF);
+    
+    clearerr(in);
+}
 
 
 
