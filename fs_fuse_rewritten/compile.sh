@@ -24,7 +24,7 @@ then
   fuseExists=true
 fi
 
-
+echo "---------------------------------------------------------------------------"
 
 if($curlExists)
 then 
@@ -44,3 +44,4 @@ else
   echo "curl not detected in your computer, install it with 'sudo apt-get install libcurl4-openssl-dev'(if your ubuntu, if search for an alternative)"
 fi
 
+echo "---------------------------------------------------------------------------"
