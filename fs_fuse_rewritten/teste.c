@@ -69,7 +69,8 @@
 #include<sys/socket.h>
 #include<arpa/inet.h>	
 #include <signal.h>
-#include"string_to_int.c" //conversão de strings para integers
+#include"string_to_int.c" //conversão de strings para integers 
+#include <pthread.h>
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
@@ -144,7 +145,6 @@ void carregaDB(){
   size_t len = 0;
   ssize_t read;
   char* nome;
-  char* email;
   int N=10;
 	//caminho para a base de dados
 	//assume que está em contact_storage na mesma pasta que este ficheiro
@@ -515,8 +515,6 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	if(randomCodeTest != randomCodeGenerated){
 		verificado = -1;
 
-		char* codeFromUser = (char*)malloc(sizeof(char)*SIZE);
-
 		randomCodeTest = randomCodeGenerated;
 
 		//NOTA: no final temos de garantir que se falhar o valor de 
@@ -529,7 +527,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//passo 2: mandar código para o email que obtivemos
 
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
-		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
+		//sendMailToSomeoneWithACode(clientes[clienteAtual].email,randomCodeGenerated);
     
     //informar o cliente que já mandamos o código
 		write(client_sock,"codigoEnviado",strlen("codigoEnviado"));
@@ -542,11 +540,9 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		time_t currentTimeSec = time(NULL);
 		time_t timeTakenSec = currentTimeSec-startTimeSec;
 
-		while(timeTakenSec<=30){
-			
-			time_t currentTimeSec = time(NULL);
-			time_t timeTakenSec = currentTimeSec-startTimeSec;
-
+		while(timeTakenSec<=30){			
+			currentTimeSec = time(NULL);
+			timeTakenSec = currentTimeSec-startTimeSec;
 
 			if(codeFromClient == randomCodeGenerated){
 				write(
@@ -571,7 +567,8 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 			}
 
 			if(timeTakenSec%5==0){
-				char * men = sprintf(men,"Faltam %d segundos para introduzir o seu código",30-timeTakenSec);;
+				char * men = (char*)malloc(sizeof(char)*SIZE);
+				sprintf(men,"Faltam %ld segundos para introduzir o seu código",30-timeTakenSec);;
 				
 				write(client_sock,men,sizeof men);
 			}
@@ -593,10 +590,14 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//pois se chegamos aqui então é porque o código já foi enviado 
 		//e verificado com sucesso
 
-		res = open(path, fi->flags);
-		if (res == -1){ return -errno; }
-		fi->fh = res;
-		return 0;
+		if( verificado!=-1 ){
+			res = open(path, fi->flags);
+			if (res == -1){ return -errno; }
+			fi->fh = res;
+			return 0;	
+		}
+
+
 	}
 
 
@@ -954,11 +955,16 @@ int main(int argc, char *argv[]){
 
 
 
-	//descobrir email de utilizador
- 	char* email = NULL;
+
+	//inicializando nome do utilizador
+	getLine("Introduza o seu utilizador> ",username, sizeof username);
+
+
+
+	//verificar a existência do utilizador
 
 	for(int z = 0;z < totalClientesBD;z++){
-  	if( strcpm(clientes[z].nome) == 0 ){ clienteAtual = z; break;} 
+  	if( strcpy(clientes[z].nome,username) == 0 ){ clienteAtual = z; break;} 
 	}
 	if(clienteAtual == -1){
 		//cliente não encontrado no base de dados
@@ -970,8 +976,11 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
+	//debug
+	printf("cliente conectado\n");
 
-  umask(0);
-  return fuse_main(argc, argv, &xmp_oper, NULL);
+
+  //umask(0);
+  //return fuse_main(argc, argv, &xmp_oper, NULL);
 
 }

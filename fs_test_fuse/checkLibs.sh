@@ -46,8 +46,6 @@ fi
 
 if(($fuseExists) && ($curlExists))
 then
-  gcc server_example.c -o server_example -D_FILE_OFFSET_BITS=64 -lcurl -pthread
-	gcc client_example.c -o client_example -D_FILE_OFFSET_BITS=64
-	gcc -Wall teste.c `pkg-config fuse3 --cflags --libs` -o teste
+	gcc -Wall $1.c `pkg-config fuse3 --cflags --libs` -o $1
 else
   echo "one of the libraries was not detected, compiling won't progress"
