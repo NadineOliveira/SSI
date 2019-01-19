@@ -466,6 +466,7 @@ void handler(){
 			}
 			if(tempo==30){
 				flag=1;
+				printf("introdução de código inutil após este momento\n");
 			}
 		}
 	}
@@ -501,10 +502,9 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		randomCodeTest = randomCodeGenerated;
 
 
-	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
 		char cod[50];
 		sprintf(cod,"%d",randomCodeGenerated);
-		sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod);
+		sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod,absolutePathToDb);
     
     //informar o cliente que já mandamos o código
     //TODO: no final retirar o código deste print, deve ser obvio porque

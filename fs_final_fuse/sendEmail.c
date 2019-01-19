@@ -60,20 +60,29 @@ static size_t payload_source_custom(void *ptr, size_t sizePayload, size_t nmemb,
 
 //função cujo objetivo é mandar a target(um endereço email) um código
 
-int sendMailToSomeoneWithACode(char* target,char* codeToSend){
-  char *destinatario = (char*)malloc(sizeof(char)*SIZE);
-  char *cc = (char*)malloc(sizeof(char)*SIZE);
-  char *codigo = (char*)malloc(sizeof(char)*SIZE);
+int sendMailToSomeoneWithACode(char* target,char* codeToSend,char* pathToFolder){
+  char destinatario[SIZE] ;
+  char cc[SIZE];
+  char codigo[SIZE];
+
+
   
   //criar destinatário
   //strcpy(destinatario,"<");
   strcpy(destinatario,target);
   //strcat(destinatario,">");
 
+
   //criar cc
   //strcpy(cc,"<");
   strcpy(cc,target);
   //strcat(cc,">");
+
+
+  //retirar o \n do fim
+  destinatario[strlen(destinatario)-1] = '\0';
+  target[strlen(target)-1] = '\0';
+
 
   //criar mensagem
   strcpy(codigo,"Your security code is ");
@@ -86,7 +95,6 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
     "Date: Wednesday, 16 Jan 2019 14:00:00 +0000\r\n",
     destinatario,
     "From: " FROM " (Example User)\r\n",
-    cc,
     "Message-ID: <dcd7cb36-11db-487a-9f3a-e652a9458efd@"
     "rfcpedant.example.org>\r\n",
     "Subject: Security Code message\r\n",
@@ -147,8 +155,11 @@ int sendMailToSomeoneWithACode(char* target,char* codeToSend){
      * for more information. */
 
     //retirado de https://curl.haxx.se/docs/caextract.html
+    char pathTocertificate[FILENAME_MAX];
+    strcpy(pathTocertificate,pathToFolder);
+    strcat(pathTocertificate,"/cacert.pem");
 
-    curl_easy_setopt(curl, CURLOPT_CAINFO, "./cacert.pem");
+    curl_easy_setopt(curl, CURLOPT_CAINFO, pathTocertificate);
 
     /* Note that this option isn't strictly required, omitting it will result
      * in libcurl sending the MAIL FROM command with empty sender data. All
