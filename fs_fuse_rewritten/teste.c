@@ -71,11 +71,13 @@
 #include <signal.h>
 #include"string_to_int.c" //conversão de strings para integers 
 #include <pthread.h>
-#include <curses.h>
 
 
 
 #define SIZE 1000
+
+//efetivamentee a definir as teclas com o control pressionado
+#define CONTROL(x) ((x) & 0x1F)
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
@@ -88,35 +90,9 @@ int randomCodeTest = -1;
 //client_example.c
 
 #define WAIT 5
-#define OK       0
+#define OKHERE       0
 #define NO_INPUT 1
 #define TOO_LONG 2
-
-
-static int getLine (char *prmpt, char *buff, size_t sz) {
-    int ch, extra;
-
-    // Get line with buffer overrun protection.
-    if (prmpt != NULL) {
-        printf ("%s", prmpt);
-        fflush (stdout);
-    }
-    if (fgets (buff, sz, stdin) == NULL)
-        return NO_INPUT;
-
-    // If it was too long, there'll be no newline. In that case, we flush
-    // to end of line so that excess doesn't affect the next call.
-    if (buff[strlen(buff)-1] != '\n') {
-        extra = 0;
-        while (((ch = getchar()) != '\n') && (ch != EOF))
-            extra = 1;
-        return (extra == 1) ? TOO_LONG : OK;
-    }
-
-    // Otherwise remove newline and give string back to caller.
-    buff[strlen(buff)-1] = '\0';
-    return OK;
-}
 
 
 //server_example.c
@@ -467,32 +443,24 @@ static int xmp_create(const char *path, mode_t mode,
 
 
 
+int tempo=0;
+int flag=0;
 
-//thread para o temporizador
-/*
-void *threadproc(void *arg){
-		temporizador = 30;
-    while( (temporizador>0) && (verificado != 1) ){
-				char* mensagem = "Faltam ";
-				strcat(mensagem,temporizador);
-				strcat(mensagem," segundos para colocar o código");
-				write(client_sock,"faltam ",strlen(""));
-        temporizador = temporizador-5;
-        sleep(5);
-    }
-    return 0;
-}
-
-*/
+void handler(){
+	alarm(1);
+	tempo++;
+	if(tempo%5 == 0)
+		printf("Passaram: %d segundos\n", tempo);
+	if(tempo==30)
+		flag=1;
+} 
 
 
 
 static int xmp_open(const char *path, struct fuse_file_info *fi){
-
 	int res;
 
 	//printf("open\n");
-
 
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
@@ -511,69 +479,53 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 		printf("Introduza o código:(tem 30 segundos)");
 		
-		//inicializa ncurses
-		initscr();
-		cbreak();
-		//noecho();
-		
-		char *end;
-		char buf[LINE_MAX];
-
+		int i = 0;
 		int codigoColocado = -1; 
 
-		int ch;
- 		nodelay(stdscr, TRUE);
-		for (;;) {
-      if ((ch = getch()) == ERR) {
-          /* user hasn't responded
-           ...
-          */
-      }
-      else {
-          /* user has pressed a key ch
-           ...
-          */
-      }
- 		}
+		signal(SIGALRM,handler);
+		alarm(1);
 
-		do {
-     if (!fgets(buf, sizeof buf, stdin)){ break; }
+		while(1){
+			pause();
+			if(flag==1){
+				printf("timeout\n");
+				break;
+			}else{
+				while ( (scanf("%d", &codigoColocado) != 1) && (flag!=1)) {
+						clear_stream(stdin);
+						printf("Invalid integer. Please try again: ");
+						fflush(stdout);
+				}
+				if(flag == 1){
+					break;
+				}else{
 
-		 printf("%s\n",buf);
+				}
 
-     // remove \n
-     buf[strlen(buf) - 1] = 0;
+			}
+		}
 
-     codigoColocado = strtol(buf, &end, 10);
-		 printf("%d\n",codigoColocado);
+		return 0;
+
+
 
 		if(codigoColocado == randomCodeGenerated){
 			printf("codigo correto, continuando com o open");
 			res = open(path, fi->flags);
 			if (res == -1){ return -errno; }
 			fi->fh = res;
-			//terminar ncurses
-			endwin()
 			return 0;
 		}else{
 			printf("codigo errado, tente novamente\n");
 			printf("nota: neste momento ele vai impedir o open porque ainda não colocas-te timeout\n");
 		}
 
-		} while (end != buf + strlen(buf));
-
-
-		
-
-		
-
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
 
 		randomCodeTest = -1;
-		//terminar ncurses
-		endwin()
 		return -errno;
+		
 
 	}else{
 		//neste caso devemos apenas abrir o ficheiro,
@@ -865,13 +817,16 @@ int main(int argc, char *argv[]){
   //carregar os utilizadores 
   carregaDB();
 
+
 	printf("\n\nNOTA:a consola na nova pasta não vai diretamente para a diretoria que vai ser montada\n");
 	printf("Isto é porque se fosse seria necessário recarregar a pasta ou sair e voltar a entrar nela\n");
 	printf("Como tal após colocar um utilizadr válido por favor faça cd ./teste para poder entrar no sistema de ficheiros criado\n\n");
 
 
 	//inicializando nome do utilizador
-	getLine("Introduza o seu utilizador> ",username, sizeof username);
+	printf("Introduza o seu utilizador\n");
+
+	scanf("%s",username);
 
 	printf("%s\n",username);
 
@@ -880,29 +835,35 @@ int main(int argc, char *argv[]){
 	//verificar a existência do utilizador
 
 	for(int z = 0;z < totalClientesBD;z++){
-  	if( strcmp(clientes[z].nome,username) == 0 ){ 
+		if( strcmp(clientes[z].nome,username) == 0 ){ 
 			clienteAtual = z; break;
 		} 
 	}
 	if(clienteAtual == -1){
 		//cliente não encontrado no base de dados
 		printf("nome não encontrado\n");
-
 		return 0;
 	}
 
-	printf("deverá ser redirecionado para a diretoria de entrada do sistema de ficheiros criado\n");
+	printf("sempre que abrir o open um ecra será criado para colocar o código\n");
+	printf("se ele sair do ecra antes dos 30 segundos passarem então teve sucesso no open\n");
+	printf("ele automaticamente sai depois de 30 segundos(e o open falhou)\n\n");
+
+	printf("poderá utilizar o cd ./teste para entrar no sistema de ficheiros após este ecra desaparecer\n");
 	printf("pode utilizar como se fosse o sistema normal, com a excepção da operação open\n");
-	printf("esta foi modificada para apenas abrir ficheiros se obtiver um código de autorização\n");
+	printf("apenas a operação open requer código de autorização\n");
 	printf("este código será distribuido pelo contacto de email que está definido em contact_storage\n");
-	printf("o código deve ser colocado na nova consola que foi criada quando tal for possivel\n");
+	printf("o código deve ser colocado no ecra quando lhe for pedido\n");
+
 	printf("note-se que apenas tem 30 segundos para colocar o código após ter sido distribuido\n\n");
 	printf("quando quiser sair saia das consolas, volte à diretoria do make e chame 'make stop'\n\n");
 	printf("se tiver algum problema entretanto poderá chamar 'make help' para obter informação de alguns problemas que podem ocorrer\n");
 
 
+
 	//iniciar fuse
   umask(0);
   return fuse_main(argc, argv, &xmp_oper, NULL);
+
 
 }
