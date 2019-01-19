@@ -87,6 +87,7 @@
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
 
+int randomCodeTest = -1;
 
 
 //funções auxiliares
@@ -460,7 +461,7 @@ void handler(){
 	}else{
 		if(tempo<=30){
 			tempo++;
-			if(tempo%10 == 0){
+			if(tempo%5 == 0){
 				printf("Passaram: %d segundos\n", tempo);
 			}
 			if(tempo==30){
@@ -494,55 +495,89 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
 
+	printf("%d\n",randomCodeTest);
+
+	if(randomCodeTest != randomCodeGenerated){
+
+		randomCodeTest = randomCodeGenerated;
 
 
-	char cod[50];
-	sprintf(cod,"%d",randomCodeGenerated);
-	sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod,absolutePathToDb);
-  
-  //informar o cliente que já mandamos o código
-  //TODO: no final retirar o código deste print, deve ser obvio porque
-	printf("Código enviado para %s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
-	printf("Introduza o código:(tem 30 segundos)");
-	
-	int codigoColocado = -1; 
-	stop=0;
-	signal(SIGALRM,handler);
-	alarm(1);
-	while(1){
-		pause();
-		if(flag==1){
-			printf("timeout\n");
-			break;
-		}else{
-			while ( (scanf("%d", &codigoColocado) != 1) && (flag!=1)) {
-					clear_stream(stdin);
-					printf("Não introduziu um inteiro, volte a tentar: ");
-					fflush(stdout);
-			}
-			if(flag == 1){
+		char cod[50];
+		sprintf(cod,"%d",randomCodeGenerated);
+		char* ptr;
+		if( (ptr = strchr(clientes[clienteAtual].email, '\n')) != NULL){
+			printf("entoru\n");
+    		*ptr = '\0';
+		}
+		printf("%s\n", clientes[clienteAtual].email);
+		sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod,absolutePathToDb);
+    
+    //informar o cliente que já mandamos o código
+    //TODO: no final retirar o código deste print, deve ser obvio porque
+		printf("Código enviado para %s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
+
+
+		printf("Introduza o código:(tem 30 segundos)");
+		
+		int codigoColocado = -1; 
+
+		stop=0;
+		signal(SIGALRM,handler);
+		alarm(1);
+
+		while(1){
+			pause();
+			if(flag==1){
+				printf("timeout\n");
 				break;
-			}else{	
-				if(codigoColocado == randomCodeGenerated){
-					printf("codigo correto, continuando com o open");
-					stop = 1;
-					res = open(path, fi->flags);
-					if (res == -1){ return -errno; }
-					fi->fh = res;
-					return 0;
-				}else{
-					printf("codigo errado, tente novamente\n");
+			}else{
+				while ( (scanf("%d", &codigoColocado) != 1) && (flag!=1)) {
+						clear_stream(stdin);
+						printf("Invalid integer. Please try again: ");
+						fflush(stdout);
 				}
+				if(flag == 1){
+					break;
+				}else{	
+					if(codigoColocado == randomCodeGenerated){
+						printf("codigo correto, continuando com o open");
+						stop = 1;
+						res = open(path, fi->flags);
+						if (res == -1){ return -errno; }
+						fi->fh = res;
+						return 0;
+					}else{
+						printf("codigo errado, tente novamente\n");
+					}
+
+				}
+
 			}
 		}
+
+
+
+		//Se chegamos aqui então concluimos que o tempo terminou
+		//e como tal devemos dar erro e avisar o utilizador
+		stop = 1;
+		randomCodeTest = -1;
+		return -errno;
+		
+
+	}else{
+		//neste caso devemos apenas abrir o ficheiro,
+		//pois se chegamos aqui então é porque o código já foi enviado 
+		//e verificado com sucesso
+
+		res = open(path, fi->flags);
+		if (res == -1){ return -errno; }
+		fi->fh = res;
+		return 0;	
+
+
 	}
 
-
-	//Se chegamos aqui então concluimos que o tempo terminou
-	//e como tal devemos dar erro e avisar o utilizador
-	stop = 1;
-	return -errno;
-		
+	return 0;
 
 }
 
