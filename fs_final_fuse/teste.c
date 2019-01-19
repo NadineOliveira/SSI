@@ -508,8 +508,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod,absolutePathToDb);
   
   //informar o cliente que já mandamos o código
-  //TODO: no final retirar o código deste print, deve ser obvio porque
-	printf("Código enviado para %s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
+	printf("Código enviado para %s\n",clientes[clienteAtual].email);
 
 
 	printf("Introduza o código:(tem 30 segundos)");
@@ -528,7 +527,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		}else{
 			while ( (scanf("%d", &codigoColocado) != 1) && (flag!=1)) {
 					clear_stream(stdin);
-					printf("Invalid integer. Please try again: ");
+					printf("Valor não inteiro colcoado, tente de novo\n ");
 					fflush(stdout);
 			}
 			if(flag == 1){
