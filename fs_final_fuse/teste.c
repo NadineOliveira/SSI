@@ -71,7 +71,10 @@
 #include <signal.h>
 #include"string_to_int.c" //conversão de strings para integers 
 #include <pthread.h>
-
+#include <signal.h>
+#include <time.h>
+#include <sys/types.h>
+#include <stdlib.h>
 
 
 #define SIZE 1000
@@ -498,31 +501,29 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 				}
 				if(flag == 1){
 					break;
-				}else{
+				}else{	
+
+					if(codigoColocado == randomCodeGenerated){
+						printf("codigo correto, continuando com o open");
+						flag = 0;
+						res = open(path, fi->flags);
+						if (res == -1){ return -errno; }
+						fi->fh = res;
+						return 0;
+					}else{
+						printf("codigo errado, tente novamente\n");
+					}
 
 				}
 
 			}
 		}
 
-		return 0;
 
-
-
-		if(codigoColocado == randomCodeGenerated){
-			printf("codigo correto, continuando com o open");
-			res = open(path, fi->flags);
-			if (res == -1){ return -errno; }
-			fi->fh = res;
-			return 0;
-		}else{
-			printf("codigo errado, tente novamente\n");
-			printf("nota: neste momento ele vai impedir o open porque ainda não colocas-te timeout\n");
-		}
 
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
-
+		flag = 0;
 		randomCodeTest = -1;
 		return -errno;
 		

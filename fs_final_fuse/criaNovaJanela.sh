@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gnome-terminal --tab --title="explorador" --command="bash -c 'sleep 1; cd ~/Desktop; exec bash; $SHELL'"
+gnome-terminal --tab --command="bash -c 'sleep 1; cd ~/Desktop; exec bash; $SHELL'"
