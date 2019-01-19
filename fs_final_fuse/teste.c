@@ -65,6 +65,7 @@
 //includes para testar algumas coisas
 
 #include"genRandomCode.c"
+#include"sendEmail.c"
 #include<unistd.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>	
@@ -501,7 +502,9 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
-		//sendMailToSomeoneWithACode(clientes[clienteAtual].email,randomCodeGenerated);
+	char cod[50];
+	sprintf(cod,"%d",randomCodeGenerated);
+	sendMailToSomeoneWithACode(clientes[clienteAtual].email,cod);
     
     //informar o cliente que já mandamos o código
     //TODO: no final retirar o código deste print, deve ser obvio porque
