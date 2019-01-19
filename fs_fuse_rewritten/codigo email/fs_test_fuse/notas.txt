@@ -1,0 +1,9 @@
+Está aqui um ficheiro de teste para o libfuse
+
+importante: ler as primeiras linhas para se poder utilizar
+
+
+
+compilar servidor: gcc server_example.c -o server_example -D_FILE_OFFSET_BITS=64 -lcurl -pthread
+
+compilar cliente: gcc client_example.c -o client_example -D_FILE_OFFSET_BITS=64
