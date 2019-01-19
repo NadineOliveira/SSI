@@ -449,14 +449,25 @@ static int xmp_create(const char *path, mode_t mode,
 
 int tempo=0;
 int flag=0;
+int stop=1;
 
 void handler(){
 	alarm(1);
-	tempo++;
-	if(tempo%5 == 0)
-		printf("Passaram: %d segundos\n", tempo);
-	if(tempo==30)
-		flag=1;
+
+	if(stop == 1){
+		flag = 0;
+		tempo = 0;
+	}else{
+		if(tempo<=30){
+			tempo++;
+			if(tempo%5 == 0){
+				printf("Passaram: %d segundos\n", tempo);
+			}
+			if(tempo==30){
+				flag=1;
+			}
+		}
+	}
 } 
 
 void clear_stream(FILE *in)
@@ -482,6 +493,8 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 	//gerar código aleatório
 	int randomCodeGenerated = genMultRandom();
 
+	printf("%s\n",randomCodeTest);
+
 	if(randomCodeTest != randomCodeGenerated){
 
 		randomCodeTest = randomCodeGenerated;
@@ -499,7 +512,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		
 		int codigoColocado = -1; 
 
-		flag = 0;
+		stop=0;
 		signal(SIGALRM,handler);
 		alarm(1);
 
@@ -517,10 +530,9 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 				if(flag == 1){
 					break;
 				}else{	
-
 					if(codigoColocado == randomCodeGenerated){
 						printf("codigo correto, continuando com o open");
-						flag = 0;
+						stop = 1;
 						res = open(path, fi->flags);
 						if (res == -1){ return -errno; }
 						fi->fh = res;
@@ -538,7 +550,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
-		flag = 0;
+		stop = 1;
 		randomCodeTest = -1;
 		return -errno;
 		
