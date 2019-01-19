@@ -98,30 +98,26 @@ int main(int argc , char *argv[]){
 	int read_size;
 
 
-	while(1){
-		/*
+	while(1)
+	{
 		//Send some data
-		if( send(sock , message , strlen(message) , 0) < 0){
+		if( send(sock , message , strlen(message) , 0) < 0)
+		{
 			puts("Send failed");
 			return 1;
 		}
 		
 		//Receive a reply from the server
-		if( recv(sock , server_reply , 2000 , 0) < 0){
+		if( recv(sock , server_reply , 2000 , 0) < 0)
+		{
 			puts("recv failed");
 			break;
 		}
+		
 		if(codigoInserido==0){
 			puts("Server reply :");
 			puts(server_reply);
 		}
-		*/
-
-		if( (read_size = recv(sock , server_reply , 2000 , 0) > 0) && (codigoInserido==0)  ){
-			puts("Server reply :");
-			puts(server_reply);
-		}
-
 
 		if((strstr(server_reply, "30") != NULL)&&(codigoInserido==0)){
 			while(1){

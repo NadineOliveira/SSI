@@ -50,7 +50,6 @@
 
 #include <fuse.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -69,8 +68,10 @@
 #include<sys/socket.h>
 #include<arpa/inet.h>	
 #include <signal.h>
-#include"string_to_int.c" //conversão de strings para integers 
+#include"string_to_int.c" //conversão de strings para integers
 #include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
 
 //isto é um crime contra o que nos ensinaram, mas enfim
 char absolutePathToDb[FILENAME_MAX];
@@ -81,7 +82,8 @@ int client_sock = -1;
 
 int temporizador = -1; // temporizador
 int verificado = -1; //a alterar se o código for verificado
-
+int socket_desc, c;
+struct sockaddr_in server , client;
 
 #define SIZE 1000
 
@@ -145,6 +147,7 @@ void carregaDB(){
   size_t len = 0;
   ssize_t read;
   char* nome;
+  char* email;
   int N=10;
 	//caminho para a base de dados
 	//assume que está em contact_storage na mesma pasta que este ficheiro
@@ -489,21 +492,29 @@ void *threadproc(void *arg){
 }
 
 */
-
-
+int tempo=0;
+int flag = 0;
+void handler1(){
+	alarm(1);
+	tempo++;
+	if(tempo==5){
+		printf("flag\n");
+		flag=1;
+	}
+} 
 
 static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 	printf("open\n");
 
 	int res;
-
+/*
 
 	res = open(path, fi->flags);
 	if (res == -1){ return -errno; }
 	fi->fh = res;
 	return 0;
-
+*/
 	//TODO:retirar coisas acima quando terminar o teste de mensagem para cliente
 
 
@@ -512,8 +523,10 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 
 
 
-	if(randomCodeTest != randomCodeGenerated){
+	if(1==1/*randomCodeTest != randomCodeGenerated*/){
 		verificado = -1;
+
+		char* codeFromUser = (char*)malloc(sizeof(char)*SIZE);
 
 		randomCodeTest = randomCodeGenerated;
 
@@ -527,50 +540,52 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//passo 2: mandar código para o email que obtivemos
 
 	  //TODO: descomentar isto quando tivermos certeza que o email está a ser bem transmitido
-		//sendMailToSomeoneWithACode(clientes[clienteAtual].email,randomCodeGenerated);
-    
+		//sendMailToSomeoneWithACode(email,randomCodeGenerated);
     //informar o cliente que já mandamos o código
-		write(client_sock,"codigoEnviado",strlen("codigoEnviado"));
-
-    //TODO: no final retirar o código deste print, deve ser obvio porque
-		printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
-
-		//temporizador e verificador de código de cliente
 		char *message , client_message[2000];
+
+		write(client_sock,"codigoEnviado\n",strlen("codigoEnviado\n"));
+		
 		write(client_sock,"Insira o codigo tem 30 segundos:",strlen("Insira o codigo tem 30 segundos:"));
 
-		while( recv(client_sock , client_message , 2000 , 0) > 0){
+		while( recv(client_sock , client_message , 2000 , 0) > 0)
+		{
 			puts(client_message);
 			if(strstr(client_message,"timeout")==NULL)
 				codeFromClient = atoi(client_message);
 			break;
 		}
 
-		if(codeFromClient == randomCodeGenerated){
-			write(
-				client_sock,
-				"validadoCodigo",
-				strlen("validadoCodigo")
-			);
-			verificado = 1;
-			res = open(path, fi->flags);
-			if (res == -1){ return -errno; }
-			fi->fh = res;
-			return 0;
-		}else if(codeFromClient != -1){
-			write(
-				client_sock,
-				"erradoCodigo",
-				strlen("erradoCodigo")
-			);
-			codeFromClient = -1;
+    //TODO: no final retirar o código deste print, deve ser obvio porque
+		//printf("Código enviado para%s\n%d\n",clientes[clienteAtual].email,randomCodeGenerated);
 
 
+			if(codeFromClient == randomCodeGenerated){
+				write(
+					client_sock,
+					"validadoCodigo\n",
+					strlen("validadoCodigo\n")
+				);
+				verificado = 1;
+
+				res = open(path, fi->flags);
+				if (res == -1){ return -errno; }
+				fi->fh = res;
+
+				return 0;
+			}else if(codeFromClient != -1){
+				write(
+					client_sock,
+					"erradoCodigo",
+					strlen("erradoCodigo")
+				);
+				codeFromClient = -1;
+			}
 		}
 
 		//Se chegamos aqui então concluimos que o tempo terminou
 		//e como tal devemos dar erro e avisar o utilizador
-
+/*
     write(client_sock,"tempoEsgotado",strlen("tempoEsgotado"));
 
 		randomCodeTest = -1;
@@ -583,15 +598,11 @@ static int xmp_open(const char *path, struct fuse_file_info *fi){
 		//pois se chegamos aqui então é porque o código já foi enviado 
 		//e verificado com sucesso
 
-		if( verificado!=-1 ){
-			res = open(path, fi->flags);
-			if (res == -1){ return -errno; }
-			fi->fh = res;
-			return 0;	
-		}
-
-
-	}
+		res = open(path, fi->flags);
+		if (res == -1){ return -errno; }
+		fi->fh = res;
+		return 0;*/ 
+	//}
 
 
 
@@ -857,8 +868,6 @@ static struct fuse_operations xmp_oper = {
 #endif
 };
 
-
-
 //lida com a comunicação cliente->servidor
 void *connection_handler(void *socket_desc){
 	//Get the socket descriptor
@@ -906,10 +915,10 @@ int main(int argc, char *argv[]){
 
 
 
-	int socket_desc , c , *new_sock;
-	struct sockaddr_in server , client;
+	int *new_sock;
+	 
 
-	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+	
 	if (socket_desc == -1){
 		printf("Could not create socket");
 	}
@@ -918,6 +927,8 @@ int main(int argc, char *argv[]){
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_port = htons( 8888 );
+
+	socket_desc= socket(AF_INET , SOCK_STREAM , 0);
 
 	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0){
 		//print the error message
@@ -930,44 +941,39 @@ int main(int argc, char *argv[]){
 
 	puts("Waiting for client to start");
 	c = sizeof(struct sockaddr_in);
+	char* a = strdup("Introduza o nome: \n");
 
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-
-	puts("Connection accepted");
+	//client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+	while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
+		puts("Connection accepted");
+		printf("%d\n", client_sock);
+		struct fuse_file_info *fi = malloc(sizeof(struct fuse_file_info));
+		xmp_open("path", fi);
+		//write(client_sock,a,strlen(a));
+		pthread_t sniffer_thread;
+		new_sock = malloc(1);
+		*new_sock = client_sock;
 		
-	pthread_t sniffer_thread;
-	new_sock = malloc(1);
-	*new_sock = client_sock;
-	
-	if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0){
-		perror("could not create thread");
-		return 1;
+		
+		if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0){
+			perror("could not create thread");
+			return 1;
+		}
 	}
+
+	
 	
 	//Now join the thread , so that we dont terminate before the thread
 	//pthread_join( sniffer_thread , NULL);
 	puts("Handler assigned");
 
 
-	printf("\n\nNOTA:a consola na nova pasta só terá capacidade de fazer coisas DEPOIS de introduzir o nome do utilizador\n");
-	printf("Antes de tal, a consola que está lá é inutil\n");
 
+	//descobrir email de utilizador
+ 	char* email = NULL;
 
-
-	//inicializando nome do utilizador
-	getLine("Introduza o seu utilizador> ",username, sizeof username);
-
-	printf("%s\n",username);
-
-
-
-	//verificar a existência do utilizador
-
-	for(int z = 0;z < totalClientesBD;z++){
-		printf("%s\n",clientes[z].nome);
-  	if( strcmp(clientes[z].nome,username) == 0 ){ 
-			clienteAtual = z; break;
-		} 
+	/*for(int z = 0;z < totalClientesBD;z++){
+  	if( strcmp(clientes[z].nome) == 0 ){ clienteAtual = z; break;} 
 	}
 	if(clienteAtual == -1){
 		//cliente não encontrado no base de dados
@@ -976,39 +982,12 @@ int main(int argc, char *argv[]){
 			"O seu utilizador não foi encontrado na base de dados, logo não pode aceder ao sistema de ficheiros\n",
 			strlen("O seu utilizador não foi encontrado na base de dados, logo não pode aceder ao sistema de ficheiros\n")
 		);
-
-		printf("nome não encontrado\n");
-
-		close(socket_desc);
-
 		return 0;
 	}
 
-	//debug
-	printf("cliente conectado\n");
-	write( 
-		client_sock,
-		"servidor reconheceu o nome, iniciando serviço\n",
-		strlen("servidor reconheceu o nome, iniciando serviço\n")
-	);
-
-	printf("deverá ser redirecionado para a diretoria de entrada do sistema de ficheiros criado\n");
-	printf("pode utilizar como se fosse o sistema normal, com a excepção da operação open\n");
-	printf("esta foi modificada para apenas abrir ficheiros se obtiver um código de autorização\n");
-	printf("este código será distribuido pelo contacto de email que está definido em contact_storage\n");
-	printf("o código deve ser colocado na nova consola que foi criada quando tal for possivel\n");
-	printf("note-se que apenas tem 30 segundos para colocar o código após ter sido distribuido\n\n");
-	printf("quando quiser sair saia das consolas, volte à diretoria do make e chame 'make stop'\n\n");
-	printf("se tiver algum problema entretanto poderá chamar 'make help' para obter informação de alguns problemas que podem ocorrer\n");
-
-
-
-	//fechar o servidor, temporário
-	//close(socket_desc);
-
 
   umask(0);
-  return fuse_main(argc, argv, &xmp_oper, NULL);
-
+  return fuse_main(argc, argv, &xmp_oper, NULL);*/
+ 	return 0;
 
 }

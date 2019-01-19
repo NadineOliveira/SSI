@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gnome-terminal --tab --title="test" --command="bash -c 'sleep 1;./client; $SHELL'"
+gnome-terminal --tab --title="cliente" --command="bash -c 'sleep 1;./client; $SHELL'"
